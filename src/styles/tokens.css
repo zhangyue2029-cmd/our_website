@@ -1,0 +1,13 @@
+:root {
+ color-scheme:light;
+ --bg:#fff;--paper:#fff;--ink:#151515;--muted:#676b73;--line:#e8e8eb;
+ --accent:#151515;--accent-hover:#353843;--accent-soft:#eae4f5;--sage:#dde8f4;
+ --blue:#dde8f4;--lavender:#eae4f5;--cream:#f5eee3;--surface:#f6f6f4;
+ --have:#557c79;--forming:#8c78a6;--grow:#9a7550;
+ --radius:24px;--radius-sm:14px;--radius-pill:999px;
+ --shadow:0 12px 36px -20px #39446325,0 2px 8px #39446304;
+ --shadow-raised:0 24px 48px -22px #39446335;
+ --font-sans:Inter,Manrope,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+ --font-serif:var(--font-sans);--ease:cubic-bezier(.22,1,.36,1);
+ --space-1:8px;--space-2:16px;--space-3:24px;--space-4:32px;--space-5:48px;--space-6:72px;
+}

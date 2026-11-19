@@ -1,0 +1,11 @@
+{
+  "name": "quxiang-career-compass",
+  "version": "2.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node _server.cjs",
+    "test": "node tests/smoke.mjs && node tests/immersive.mjs && node tests/selector-flow.mjs && node tests/structure.mjs && node tests/assessment-shell.mjs && node tests/router.mjs && node tests/results.mjs && node tests/galaxy.mjs && node tests/ui-regression.mjs && node tests/protected-files.mjs",
+    "test:http": "node tests/http-runner.cjs"
+  }
+}

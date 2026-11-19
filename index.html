@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="去向：从专业出发，探索职业、建立能力画像、看见与目标职业之间的差距。">
+  <title>去向 — 大学生职业导航</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%23272a25'/%3E%3Cpath d='m22 10-4 8-8 4 4-8Z' fill='%23fffefa'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./src/styles/tokens.css">
+  <link rel="stylesheet" href="./src/styles/app.css">
+  <link rel="stylesheet" href="./src/styles/redesign.css">
+  <link rel="stylesheet" href="./src/styles/structure.css">
+  <link rel="stylesheet" href="./src/styles/editorial.css">
+  <link rel="stylesheet" href="./src/styles/immersive.css">
+  <link rel="preload" href="./src/assets/bloom-flower.webp" as="image">
+  <link rel="preload" href="./src/assets/silhouette-a.webp" as="image">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+  <div id="app"><main id="main-content" class="boot-state"><p>去向 · 职业导航</p><h1>正在准备你的探索空间…</h1></main></div>
+  <noscript><p class="boot-state">请启用浏览器的 JavaScript 后刷新页面。</p></noscript>
+  <script>
+    const root = document.getElementById("app");
+    if (location.protocol === "file:") {
+      root.innerHTML = '<main id="main-content" class="boot-state"><p>去向 · 职业导航</p><h1>还差一步，就可以出发。</h1><p>请双击项目中的「启动预览.cmd」，或在项目目录的终端运行：</p><pre>node _server.cjs</pre><p>保持终端运行，然后打开下方地址。</p><a class="btn btn-primary" href="http://127.0.0.1:8124/">打开职业探索空间 →</a></main>';
+    } else {
+      import("./src/main.js").catch(error => {
+        console.error("应用模块加载失败", error);
+        root.innerHTML = '<main id="main-content" class="boot-state" role="alert"><h1>页面暂时没有加载成功</h1><p>请刷新重试，并检查项目中的 src 文件夹是否完整。</p><button class="btn btn-primary" onclick="location.reload()">重新加载</button></main>';
+      });
+    }
+  </script>
+</body>
+</html>
