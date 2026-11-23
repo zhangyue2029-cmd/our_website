@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';import {createRouter,parseRoute,routeFor} from '../src/lib/router.js';
+let state={tab:'explore',stage:'home',majorId:null,directionId:null,careerId:null,questionIndex:0,answers:{},detailPart:'overview',historyGeneration:0};
+const handlers={},entries=[],location={hash:''};let index=-1;const host={location,addEventListener:(n,f)=>handlers[n]=f,history:{get state(){return entries[index]?.data;},pushState(data,t,hash){entries.splice(++index);entries.push({data,hash});location.hash=hash;},replaceState(data,t,hash){if(index<0)index=0;entries[index]={data,hash};location.hash=hash;}}};
+const router=createRouter({getState:()=>state,setState:p=>state={...state,...p},host});router.start();router.sync();assert.equal(location.hash,'#/home');
+function go(p){state={...state,...p};router.sync();}go({stage:'choose'});go({stage:'focus',majorId:'chinese'});go({stage:'explore',directionId:'chinese-literature'});go({stage:'detail',careerId:'editor'});go({stage:'market'});go({stage:'assess',answers:{q:{score:88}},questionIndex:0});
+const count=entries.length;go({answers:{q:{score:68}}});assert.equal(entries.length,count,'Answer changes replace current history entry');
+index--;location.hash=entries[index].hash;handlers.popstate();router.sync();assert.equal(state.stage,'market');assert.equal(state.answers.q.score,68,'Going back to same career keeps latest answers');assert.equal(entries.length,count,'Back does not push a new entry');
+index++;location.hash=entries[index].hash;handlers.popstate();router.sync();assert.equal(state.stage,'assess');assert.equal(state.answers.q.score,68);
+assert.equal(parseRoute('#/detail?major=chinese&career=editor&part=paths').detailPart,'paths');assert.equal(parseRoute('#/assess?q=-5').questionIndex,0);assert.equal(parseRoute('#/missing').stage,'home');assert.ok(routeFor(state).includes('career=editor'));
+state={tab:'explore',stage:'home',majorId:null,directionId:null,careerId:null,questionIndex:0,answers:{},historyGeneration:1};router.sync();index--;location.hash=entries[index].hash;handlers.popstate();router.sync();assert.deepEqual(state.answers,{},'Reset invalidates old answer snapshots');
+console.log('PASS: real hash routes, push/replace semantics, browser back/forward, answer preservation, scoped URL state and route validation.');

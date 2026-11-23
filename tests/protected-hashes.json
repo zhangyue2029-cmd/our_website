@@ -1,0 +1,23 @@
+{
+  "src/data/careers.js": "4204a17d16968d2b461c97b2e91b53f3caf8199a04aceadb6a897ec66be6d684",
+  "src/data/questions.js": "3e2b8e26222065ccf1db889d171b34a65fd8e137aa0a28129e65956a379ab00b",
+  "src/data/skills.js": "fc12b869b7698601eda9eb2a261a9f7ebff3d5f11170c75c3981130fceb0355a",
+  "src/data/market.js": "ac5f0327c23bc671e72ef64d83f6007acf1073dc877b5d7142c5d2019eddc698",
+  "src/lib/gap.js": "483c1038ade9d6cadd4c3fcea6076742ed48b76af4f41d23132d86f31e60dd34",
+  "src/types.js": "ea6f5db49f7d7d299f35b251f31c8880f76db1c6be7911056dc9bc2a21a44327",
+  "src/components/CareerMap.js": "423a660b4148121e1d0f82b4b29d60b7df8e615f6270f335924161bf939cd130",
+  "src/components/GalaxyInteraction.js": "7fa74163c63d83e1b35c8da1480c3340e21314197c14adc743fc40b240945faa",
+  "src/styles/redesign.css": "5f780c4a6dd06a8ec8d65e5ee0f334d6e18c8571e38413773de2ed3f17d74f38",
+  "src/styles/app.css": "cdf690975f0edef8c3f5fada4be64220ee1ef37c7bf0459d7dfda715c53b8631",
+  "src/data/majors.js": "aed07eb8b76891eef93add4555dde43c2f9e0ce08505204950fca32e5a198581",
+  "src/data/directions.js": "94c7be9b8dbdae57b99c618ef0f929888ed12db1862554fc19a6fc7ae97f8033",
+  "src/data/api.js": "026dc42d50462937bbf24ea0a6d6baec062b5a7c84c2d2c712441d5c73f33bac",
+  "src/lib/results.js": "24d25a28ee472ec73ebed9021ccaf1dbc864f44a46d14e4ece34970755c18a8b",
+  "src/components/results.js": "09fe97e1f81b12a9b9429f76af2c34a400fb461b3bbbcc31665cfbe5abbed79f",
+  "src/components/skills.js": "2a0e64994196f6a4363f30a5a81af5352f74d46c3226a412d79e30af338447f2",
+  "src/components/SpatialArt.js": "6a05eb2589f3e88326fb5fea07c5f8c0f5026f66c441707abf891b9bec946494",
+  "src/components/Persona.js": "644f4b3edada0c359f605ccd3c581fe5d02111b6ad0a666d41397a53d16a76ac",
+  "src/styles/structure.css": "2ced06d1fce3548d11e418392c7f38c596d2962913d974de96c1386107727015",
+  "src/styles/editorial.css": "3c39b0b485096b8f5d00fe8abf0cf9bb6bacf6a4d9f1d621ff99c16460cfbc9a",
+  "src/styles/tokens.css": "1de0f91c7de3c35b38700793c78ab371fc30ebb925f96d3fd6f5f4d3f26bf081"
+}
