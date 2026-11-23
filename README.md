@@ -28,3 +28,14 @@ npm run test:http
 ```
 
 自动化行为回归及模拟动效控制器测试通过。真实浏览器遮挡、帧率和手机触屏验证仍未完成。详见 `docs/ACCEPTANCE.md`。
+
+## V2.0 开发基线
+
+V2.0 基于网站初版提交 `e6faf3c27357da90cf13a6d6ebc0c766246612d2` 增量开发。本地启动入口见上文。初版提交未包含上文自动化命令引用的 `tests/` 文件。
+
+## 项目文档
+
+- [产品需求文档 V2.0](docs/去向_PRD_V2.0.md)
+- [产品设计文档](memory-bank/design-document.md)
+- [技术栈选型（推荐方案）](memory-bank/tech-stack.md)
+- [实施计划](memory-bank/implementation-plan.md)
