@@ -13,7 +13,17 @@ await act({to:'choose'});assert.match(app.innerHTML,/im-capsule-rail/);assert.ok
 await act({major:'chinese'});assert.equal(store.getState().stage,'focus');assert.match(app.innerHTML,/文学阅读与文本研究/);assert.ok(!app.innerHTML.includes('新闻采访与报道'));
 await act({direction:chinese[0].id});assert.equal(store.getState().stage,'explore');assert.match(app.innerHTML,/出版编辑/);assert.ok(!app.innerHTML.includes('data-node="pr"'));
 await act({to:'choose'});await act({major:'journalism'});assert.equal(store.getState().directionId,null);assert.equal(store.getState().careerId,null);assert.deepEqual(store.getState().answers,{});assert.match(app.innerHTML,/新闻采访与报道/);assert.ok(!app.innerHTML.includes('文学阅读与文本研究'));
-await act({direction:news[0].id});assert.ok(!app.innerHTML.includes('data-node="publisher"'));
+await act({direction:news[0].id});
+const newsCareerIds=['journalist','editor','new-media','content-ops','brand','pr','video','pm','user-ops','marketing','copywriter'];
+assert.deepEqual([...app.innerHTML.matchAll(/data-node="([^"]+)"/g)].map(match=>match[1]),['major',...newsCareerIds]);
+assert.deepEqual([...app.innerHTML.matchAll(/class="node[^"]* path-highlight" data-node="([^"]+)"/g)].map(match=>match[1]),['journalist','editor','pr']);
+await act({career:'video'});
+assert.equal(store.getState().careerId,'video','A career outside the selected direction can be opened');
+await act({to:'explore'});
+assert.equal(store.getState().directionId,news[0].id);
+await act({allDirections:''});
+assert.doesNotMatch(app.innerHTML,/path-highlight/);
+assert.equal((app.innerHTML.match(/data-node=/g)||[]).length,12);
 await act({career:'journalist'});await act({resumeAssess:''});assert.ok(!app.innerHTML.includes('assessment-art'));const oldScrolls=scrolls;
 await act({option:'2'});assert.equal(scrolls,oldScrolls,'Choosing an answer does not scroll');await act({nextQuestion:''});assert.ok(scrolls>oldScrolls,'Next question resets viewport');
 const answers={};for(const q of await getAssessment('journalist'))answers[q.id]={questionId:q.id,skillId:q.skillId,optionIndex:2,score:q.options[2].score};store.setState({answers,stage:'portrait'});await flush();

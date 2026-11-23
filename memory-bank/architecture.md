@@ -97,3 +97,7 @@ Node.js 18+ 运行 npm start 后，由本地静态服务器在 127.0.0.1:8124 �
 - 汉语言文学（chinese）完整星系标识为 editor、publisher、copywriter、screenwriter、teacher、journalist、content-ops、brand、pm、user-ops。浏览器已验证文学阅读与文本研究（chinese-literature）的三个节点以及旧详情链接 `#/detail?major=chinese&direction=chinese-literature&career=editor`。
 - 新闻传播（journalism）完整星系标识为 journalist、editor、new-media、content-ops、brand、pr、video、pm、user-ops、marketing、copywriter。浏览器已验证新闻采访与报道（journalism-reporting）的三个节点以及旧详情链接 `#/detail?category=journalism&major=journalism&direction=journalism-reporting&career=journalist`。
 - 无第三个现有专业。跨专业入口展示全部 14 个职业，是独立的聚合视图。
+
+### V2.0 星系增量
+
+新闻传播从学习方向进入星系时，src/main.js 将专业全量职业和当前方向的职业标识传给 CareerMap。星系通过 path-highlight 标记相关节点与连线，src/styles/editorial.css 负责显示强调样式。原有 GalaxyInteraction 仍负责临时悬停、焦点和点选。方向状态沿用现有 hash 和浏览器历史，汉语言文学沿用原方向子集。

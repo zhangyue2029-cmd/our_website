@@ -69,7 +69,10 @@ function heading(kicker, title, description, back = "") {
 function renderExplore() {
   const s = getState();
   const major = s.majorId === "all" ? "跨专业探索" : cache.majors.find(m => m.id === s.majorId)?.name;
-  return `<section class="stage-enter">${heading(major, "你的专业，能够走向哪里？", "点选一个职业，了解它的日常，也看见它需要怎样的能力。", "focus")}${getState().directionId ? `<p class="path-context">当前路径：${cache.directions.find(d=>d.id===getState().directionId)?.name}<button class="text-button" data-all-directions>查看专业全部职业</button></p>` : ""}${CareerMap({ careers: cache.careers, selectedId: s.careerId, majorId:s.majorId, majorName:major })}</section>`;
+  const direction = cache.directions.find(item => item.id === s.directionId);
+  const highlightDirection = s.majorId === "journalism" && direction;
+  const careers = highlightDirection ? cache.majorCareers : cache.careers;
+  return `<section class="stage-enter">${heading(major, "你的专业，能够走向哪里？", "点选一个职业，了解它的日常，也看见它需要怎样的能力。", "focus")}${direction ? `<p class="path-context">当前路径：${direction.name}<button class="text-button" data-all-directions>${highlightDirection ? "清除路径高亮" : "查看专业全部职业"}</button></p>` : ""}${CareerMap({ careers, highlightedIds: highlightDirection ? direction.careerIds : [], selectedId: s.careerId, majorId: s.majorId, majorName: major })}</section>`;
 }
 function renderDetail() {
  const c=cache.career,part=getState().detailPart||'overview';

@@ -21,3 +21,9 @@ body{color:var(--ink)}.workspace{max-width:1800px}.sidebar{background:#fbfbf8;wi
 @media(max-width:360px){.cover-title h1{font-size:58px}.cover-edition{font-size:7px}.cover-page{min-height:660px}.cover-title{padding-top:130px}.cover-object-1{width:115px}.cover-object-2{width:130px}.cover-object-3{width:122px}.cover-object-4{width:135px}.cover-object-5{width:90px}.display{font-size:34px}.distance-numbers strong{font-size:36px}.persona-stage{min-height:310px}.persona-image{width:290px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media(max-width:600px){.radar-label{font-size:18px}.radar-value{font-size:16px}.radar-scale{font-size:12px}}
+
+/* Keep every career available while marking the selected learning path. */
+.node.path-highlight .node-label { font-weight: 800; }
+.node.path-highlight .dot { outline: 2px solid currentColor; outline-offset: 4px; }
+.galaxy-line.path-highlight { stroke-width: 2; }
+[data-galaxy]:has(.path-highlight) .node:not(.center, .path-highlight, .active) .dot { opacity: .65; }
