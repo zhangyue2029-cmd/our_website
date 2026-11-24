@@ -105,3 +105,9 @@ Node.js 18+ 运行 npm start 后，由本地静态服务器在 127.0.0.1:8124 �
 ### 招聘资料候选层
 
 data/recruitment/journalism-general-v1.json 存放以现有职业标识关联的通用要求种子，状态为待审核。data/recruitment/journalism-sources-v1.json 存放附件来源定位和证据类型。tests/recruitment-seed.mjs 验证职业覆盖、候选状态、来源完整性和行业限定回归。旧站静态服务器只从 index.html 和 src 提供文件，两份种子文件供开发和后续审核使用。
+
+### 招聘候选数据库
+
+- db/recruitment/001_candidate_batches.sql 定义私有候选批次、活动发布版本、审计及前台和分析共用的发布视图。
+- tools/recruitment-import.mjs 将种子与来源索引生成 psql 导入语句。
+- tests/recruitment-db.sh 通过隔离 PostgreSQL 容器验证导入和权限、审核及版本切换。网站仍通过原静态服务器启动，业务接口尚未连接该数据层。
