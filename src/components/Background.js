@@ -7,7 +7,7 @@ import {
 
 export function BackgroundForm() {
   return `<form data-background-form>
-    <p>草稿自动保存在当前浏览器。完成填写时，会将有效经历发送给 AI 分析服务。请勿填写联系方式或证件号码。</p>
+    <p>草稿自动保存在当前浏览器。完成填写后，网站会按职业要求对照你的描述。请勿填写联系方式或证件号码。</p>
     <p role="status" data-draft-status></p>
     ${backgroundCategories.map(([id, title]) => `<fieldset class="card info-card" data-background-category="${id}">
       <legend>${title}</legend>

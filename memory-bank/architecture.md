@@ -122,7 +122,7 @@ src/components/Background.js 提供表单和交互，src/lib/background-draft.js
 
 ### 背景分析服务
 
-`_server.cjs` 将 `POST /api/background-analysis` 交给 `server/background-analysis.mjs`。服务端从批准的静态发布版本选取相应职业要求，将有效经历发送给可选 OpenAI 适配器，校验返回的招聘要求和经历标识。以请求标识及输入签名在进程内合并重复请求，成功结果在内存中保留约五分钟供重试。页面用文本节点展示结果。草稿进入本地存储。访客报告只在当前页面展示，刷新会回到填写页。登录用户可显式选择将成功报告保存至账号。
+`_server.cjs` 将 `POST /api/background-analysis` 交给 `server/background-analysis.mjs`。服务端从批准的静态发布版本选取相应职业要求，调用本站的 `server/background-rules.mjs` 确定性匹配文字线索，校验返回的招聘要求和经历标识。规则和招聘资料单独版本化。以请求标识及输入签名在进程内合并重复请求，成功结果在内存中保留约五分钟供重试。页面用文本节点展示结果。草稿进入本地存储。访客报告只在当前页面展示，刷新会回到填写页。登录用户可显式选择将成功报告保存至账号。
 
 ### 账号与圈子
 

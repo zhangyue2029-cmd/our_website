@@ -12,8 +12,7 @@ const database = process.env.QX_DATABASE_URL
   })
   : Promise.resolve(null);
 const analysis = Promise.all([import("./server/background-analysis.mjs"), database])
-  .then(([{ createAnalysisHandler, createOpenAIProvider }, db]) =>
-    createAnalysisHandler(createOpenAIProvider({ apiKey: process.env.OPENAI_API_KEY, model: process.env.QX_AI_MODEL }), { db }));
+  .then(([{ createAnalysisHandler }, db]) => createAnalysisHandler(undefined, { db }));
 const accounts = Promise.all([import("./server/accounts.mjs"), database])
   .then(([{ createAccountHandler }, db]) => createAccountHandler(db));
 const community = Promise.all([import("./server/community.mjs"), database])

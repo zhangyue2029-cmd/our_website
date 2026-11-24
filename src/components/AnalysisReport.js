@@ -7,6 +7,7 @@ export function renderReport(container, result) {
   const content = [
     element("h2", "职业准备分析"),
     element("p", result.summary),
+    ...(result.rulesVersion ? [element("p", `分析方式：文字线索对照 · ${result.rulesVersion}。命中可用于整理经历，仍需结合实际作品和过程判断。`)] : []),
     element("p", `资料版本：${result.referenceVersion}。本报告依据通用招聘参考，样本不足以计算证据覆盖率。`),
   ];
   const sections = [
@@ -17,7 +18,7 @@ export function renderReport(container, result) {
   for (const [title, rows] of sections) {
     content.push(element("h3", title));
     if (!rows.length) {
-      content.push(element("p", "目前没有充分的经历可与这些要求对应。"));
+      content.push(element("p", title === "经历迁移" ? "目前没有明确的经历线索可与这些要求对应。" : "当前填写已提及本次参考中的各项要求，可以继续用作品和过程补充证据。"));
       continue;
     }
     const list = document.createElement("ul");

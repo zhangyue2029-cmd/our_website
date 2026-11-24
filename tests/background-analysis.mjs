@@ -3,7 +3,8 @@ import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { test } from 'node:test';
-import { createAnalysisHandler, createOpenAIProvider } from '../server/background-analysis.mjs';
+import { createAnalysisHandler } from '../server/background-analysis.mjs';
+import { recruitmentReference } from '../src/data/recruitment-reference.js';
 
 const draft = { entries: { courses: [{ name: '新闻写作', details: '撰写校刊采访稿' }] } };
 const request = overrides => ({ requestId: randomUUID(), careerId: 'journalist', draft, ...overrides });
@@ -65,7 +66,7 @@ test('validates input, handles duplicate requests and returns the approved refer
   });
 });
 
-test('refuses invented references, unsupported scores and provider errors; retries same request', async () => {
+test('refuses invented references, unsupported scores and analysis errors; retries same request', async () => {
   let attempts = 0;
   await runServer(input => {
     const result = sampleReport(input);
@@ -84,24 +85,40 @@ test('refuses invented references, unsupported scores and provider errors; retri
     assert.equal((await post(body)).status, 200);
     assert.equal(attempts, 4);
   });
-  await runServer(null, async post => {
-    assert.equal((await post(request())).status, 503);
-  });
 });
 
-test('OpenAI adapter sends a structured request with storage disabled', async () => {
-  const provider = createOpenAIProvider({
-    apiKey: 'test-only', model: 'test-model',
-    fetcher: async (url, options) => {
-      assert.equal(url, 'https://api.openai.com/v1/chat/completions');
-      assert.equal(options.headers.Authorization, 'Bearer test-only');
-      const body = JSON.parse(options.body);
-      assert.equal(body.store, false);
-      assert.equal(body.model, 'test-model');
-      assert.equal(body.response_format.type, 'json_object');
-      assert.equal(body.messages[1].content, '{"entries":[]}');
-      return new Response(JSON.stringify({ choices: [{ message: { content: '{"summary":"fixture"}' } }] }));
-    },
+test('default rules cover all published careers, preserve uncertainty and avoid cross-career references', async () => {
+  await runServer(undefined, async post => {
+    for (const [careerId, requirements] of Object.entries(recruitmentReference.careers)) {
+      const response = await post(request({ careerId, draft: { narrative: '参加了大学社团。' } }));
+      assert.equal(response.status, 200, careerId);
+      const result = await response.json();
+      assert.equal(result.rulesVersion, 'journalism-rules-v1');
+      assert.equal(result.transfer.length, 0);
+      assert.deepEqual(result.gaps.map(item => item.requirementId), requirements.map(item => item.id));
+      assert.ok(result.actions.every(item => item.requirementId.startsWith(careerId + ':')));
+      assert.ok(result.actions.length > 0);
+    }
+    const positive = await (await post(request())).json();
+    assert.equal(positive.transfer[0].requirementId, 'journalist:reporting');
+    assert.match(positive.transfer[0].text, /采访稿|新闻写作/);
+    const negated = await (await post(request({ draft: { entries: {
+      courses: [{ name: '视频剪辑', details: '我不会视频剪辑。' }],
+    }, narrative: '计划做人物采访。尚未接触事实核查。' } }))).json();
+    assert.deepEqual(negated.transfer, []);
+    assert.equal(negated.gaps.length, 4);
+
+    const planning = await (await post(request({ careerId: 'new-media', draft: { narrative: '负责制定账号发布计划。' } }))).json();
+    assert.equal(planning.transfer[0].requirementId, 'new-media:account-planning');
+
+    const all = await (await post(request({ draft: { narrative: '校园采访。事实核查。视频剪辑。采访对接。' } }))).json();
+    assert.equal(all.transfer.length, 4);
+    assert.deepEqual(all.gaps, []);
+    assert.ok(all.actions.length > 0);
+
+    const boundary = await (await post(request({
+      careerId: 'user-ops', draft: { narrative: '使用nosql数据库。' },
+    }))).json();
+    assert.deepEqual(boundary.transfer, []);
   });
-  assert.deepEqual(await provider({ entries: [] }), { summary: 'fixture' });
 });

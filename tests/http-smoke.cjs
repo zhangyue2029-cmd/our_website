@@ -22,7 +22,11 @@ const attempt = await fetch("http://127.0.0.1:" + (process.env.QX_PORT || 8124) 
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ careerId: "journalist", requestId: "36bf7ec6-078d-4b58-82a2-ca946dabd6cc", draft: { narrative: "校刊采访" } }),
 });
-assert.equal(attempt.status,503);
-assert.match((await attempt.json()).error, /职业分析服务暂不可用/);
+assert.equal(attempt.status,200);
+const analysis = await attempt.json();
+assert.equal(analysis.rulesVersion,"journalism-rules-v1");
+assert.equal(analysis.transfer[0].requirementId,"journalist:reporting");
+assert.match(analysis.transfer[0].text, /校刊采访/);
+assert.ok(analysis.actions.length > 0);
 console.log(`PASS: ${files.length} resources returned HTTP 200; JS/CSS/SVG/WebP MIME valid; backup and recruitment candidates are not served; malformed URL handled.`);
 })().catch(error=>{console.error(error);process.exitCode=1;});
