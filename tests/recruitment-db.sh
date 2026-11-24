@@ -83,6 +83,7 @@ db -c "SET SESSION AUTHORIZATION baseline_reviewer;
 db -c "SET SESSION AUTHORIZATION baseline_reviewer;
     SELECT recruitment.set_active_release('journalism-general-v1', 'rollback test');"
 [[ $(db -c "SELECT count(*) FROM recruitment.released_requirements WHERE summary = 'Revised test text'") == 0 ]]
+db < db/recruitment/export_active.sql | node tools/recruitment-export.mjs | cmp - src/data/recruitment-reference.js
 db -c "SET SESSION AUTHORIZATION baseline_reviewer;
     SELECT recruitment.set_active_release(NULL, 'withdraw test');"
 [[ $(db -c 'SELECT count(*) FROM recruitment.released_requirements') == 0 ]]

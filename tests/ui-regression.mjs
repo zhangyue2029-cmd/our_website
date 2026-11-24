@@ -12,6 +12,14 @@ function verify(){assert.ok(!app.innerHTML.includes('undefined'));assert.ok(!app
 await flush();verify();await act({to:'choose'});verify();await act({to:'majors'});assert.match(app.innerHTML,/data-category-slot="chinese"/);assert.match(app.innerHTML,/data-category-slot="journalism"/);verify();
 await act({major:'journalism'});verify();await act({allDirections:''});assert.match(app.innerHTML,/galaxy-wrap/);verify();
 await act({career:'journalist'});assert.match(app.innerHTML,/career-art/);assert.match(app.innerHTML,/工作内容/);verify();await act({detailPart:'paths'});verify();await act({detailPart:'overview'});
+await act({detailPart:'recruitment'});
+assert.match(app.innerHTML,/通用招聘要求/);
+assert.match(app.innerHTML,/策划选题、寻找采访对象/);
+assert.doesNotMatch(app.innerHTML,/xlsx:|docx:|百度|腾讯/);
+verify();
+await act({major:'chinese'});await act({allDirections:''});await act({career:'journalist'});
+assert.doesNotMatch(app.innerHTML,/data-detail-part="recruitment"/);
+await act({major:'journalism'});await act({allDirections:''});await act({career:'journalist'});
 await act({to:'market'});await act({skill:'writing'});assert.match(app.innerHTML,/aria-expanded="true"/);verify();
 await act({resumeAssess:''});verify();for(const q of await getAssessment('journalist')){await act({option:'2'});await act({nextQuestion:''});}
 assert.match(app.innerHTML,/persona-.*webp/);verify();await act({to:'structure'});assert.match(app.innerHTML,/radar-chart/);verify();await act({to:'distance'});verify();await act({to:'advice'});verify();

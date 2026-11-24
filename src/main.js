@@ -1,10 +1,11 @@
+import { recruitmentReference } from "./data/recruitment-reference.js";
 import { ImmersivePages } from "./immersive/view.js";
 import { initImmersive, disposeImmersive } from "./immersive/controller.js";
 import { resolveCategory } from "./data/categories.js";
 import { getState, setState, resetJourney, canSaveProgress, subscribe } from "./lib/store.js";
 import { getMajors, getCareersForMajor, getCareer, getMarketProfile, getAssessment, getMajorDirections, getCareersForDirection } from "./data/api.js";
 import { directionSources, directionNote } from "./data/directions.js";
-import { createRouter, STAGE_TITLES } from "./lib/router.js";
+import { createRouter, normalizeDetailPart, STAGE_TITLES } from "./lib/router.js";
 import { personaFor } from "./lib/results.js";
 import { ResultNav, RadarChart, AbilityTable, DistanceView, AdviceView, PersonaSummary } from "./components/results.js";
 import { PersonaArt } from "./components/Persona.js";
@@ -50,7 +51,8 @@ async function hydrate(source) {
     stage = "assess";
     questionIndex = Math.max(0, questions.findIndex(q => !answers[q.id]));
   }
-  const patch = { categoryId, majorId, directionId, careerId, answers, stage, questionIndex };
+  const detailPart = source.detailPart === "recruitment" && majorId !== "journalism" ? "overview" : normalizeDetailPart(source.detailPart);
+  const patch = { categoryId, majorId, directionId, careerId, answers, stage, questionIndex, detailPart };
   const portrait = buildPortrait(profile, Object.fromEntries(Object.values(answers).map(a => [a.skillId, a.score])));
   return { patch, data: { majors, directions, majorCareers, allCareers, careers, career, profile, questions, portrait } };
 }
@@ -74,11 +76,27 @@ function renderExplore() {
   const careers = highlightDirection ? cache.majorCareers : cache.careers;
   return `<section class="stage-enter">${heading(major, "你的专业，能够走向哪里？", "点选一个职业，了解它的日常，也看见它需要怎样的能力。", "focus")}${direction ? `<p class="path-context">当前路径：${direction.name}<button class="text-button" data-all-directions>${highlightDirection ? "清除路径高亮" : "查看专业全部职业"}</button></p>` : ""}${CareerMap({ careers, highlightedIds: highlightDirection ? direction.careerIds : [], selectedId: s.careerId, majorId: s.majorId, majorName: major })}</section>`;
 }
+function renderRecruitmentReference(requirements) {
+  const escape = text => text.replace(/[&<>]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[char]);
+  const groups = [
+    ["task", "主要工作任务"],
+    ["skill", "通用能力"],
+    ["portfolio", "作品准备建议"],
+  ];
+  const sections = groups.map(([category, label]) => {
+    const items = requirements.filter(item => item.category === category);
+    if (!items.length) return "";
+    return `<section><h3>${label}</h3><ul>${items.map(item => `<li>${escape(item.summary)}</li>`).join("")}</ul></section>`;
+  }).join("");
+  return `<article class="card info-card"><h2>通用招聘要求</h2><p>根据提供的招聘资料跨行业归纳，供职业探索参考。具体条件和在招状态请以招聘公告为准。</p>${sections}<p class="fine-print">资料版本：${escape(recruitmentReference.version)}</p></article>`;
+}
+
 function renderDetail() {
  const c=cache.career,part=getState().detailPart||'overview';
+ const requirements = getState().majorId === 'journalism' ? recruitmentReference.careers[c.id] : null;
  const overview=`<div class="detail-grid"><article class="card info-card"><p class="eyebrow">01 / 工作内容</p><h2>这个职业，主要做什么？</h2><ol class="work-list">${c.work.map((x,i)=>`<li><span>0${i+1}</span>${x}</li>`).join('')}</ol></article><article class="card info-card"><p class="eyebrow">02 / 工作场景</p><h2>可能在哪里工作？</h2><ul class="scene-tags">${c.scenes.map(x=>`<li>${x}</li>`).join('')}</ul><p class="fine-print">相关专业：${cache.majors.filter(m=>c.relatedMajorIds.includes(m.id)).map(m=>m.name).join(' · ')}</p></article></div>`;
  const paths=`<article class="career-paths"><p class="eyebrow">相邻职业 / 原有关系数据</p><h2>沿着联系，看看更多可能。</h2><div class="related-careers">${c.connections.map(id=>cache.allCareers.find(x=>x.id===id)).filter(Boolean).map(x=>`<button class="btn btn-ghost" data-major-career="${x.id}">${x.name}${Icon('arrow')}</button>`).join('')}</div><p>${c.marketIntro}</p><p class="fine-print">相邻关系用于探索，不等于职业晋升路径；本项目没有可靠的薪资、年限与晋升数据。</p></article>`;
- return `<section class="stage-enter"><div class="spatial-heading">${heading('04 / CAREER PROFILE',c.name,c.tagline,'explore')}${CareerArt(c.id)}</div><nav class="detail-tabs" aria-label="职业档案分页"><button data-detail-part="overview" ${part==='overview'?'aria-current="page"':''}>工作与场景</button><button data-detail-part="paths" ${part==='paths'?'aria-current="page"':''}>相邻职业与下一步</button></nav>${part==='paths'?paths:overview}<div class="page-actions"><button class="btn btn-primary" data-to="market">查看 ${cache.profile.length} 项能力要求 ${Icon('arrow')}</button><button class="text-button" data-resume-assess>看看我的能力 ${Icon('arrow')}</button></div></section>`;
+ return `<section class="stage-enter"><div class="spatial-heading">${heading('04 / CAREER PROFILE',c.name,c.tagline,'explore')}${CareerArt(c.id)}</div><nav class="detail-tabs" aria-label="职业档案分页"><button data-detail-part="overview" ${part==='overview'?'aria-current="page"':''}>工作与场景</button><button data-detail-part="paths" ${part==='paths'?'aria-current="page"':''}>相邻职业与下一步</button>${requirements?.length ? `<button data-detail-part="recruitment" ${part==='recruitment'?'aria-current="page"':''}>招聘要求</button>` : ''}</nav>${part==='paths'?paths:part==='recruitment'&&requirements?.length?renderRecruitmentReference(requirements):overview}<div class="page-actions"><button class="btn btn-primary" data-to="market">查看 ${cache.profile.length} 项能力要求 ${Icon('arrow')}</button><button class="text-button" data-resume-assess>看看我的能力 ${Icon('arrow')}</button></div></section>`;
 }
 
 function demoNote() { return `<div class="notice">${Icon("info")}<p>当前为演示数据，用于理解职业能力要求，不代表实时招聘统计。</p></div>`; }

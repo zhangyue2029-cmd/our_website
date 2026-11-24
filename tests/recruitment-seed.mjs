@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { recruitmentReference } from '../src/data/recruitment-reference.js';
 import { getCareersForMajor } from '../src/data/api.js';
 
 async function readSeed(filename) {
@@ -50,6 +51,15 @@ for (const requirement of seed.requirements) {
     assert.notEqual(source.origin, 'secondary_unverified', id);
     assert.notEqual(source.origin, 'historical_official', id);
   }
+}
+
+assert.equal(recruitmentReference.version, seed.version);
+assert.deepEqual(Object.keys(recruitmentReference.careers).sort(), careerIds);
+for (const careerId of careerIds) {
+  const expected = seed.requirements.filter(item => item.careerId === careerId)
+    .map(({ category, summary }) => ({ category, summary }));
+  assert.deepEqual([...recruitmentReference.careers[careerId]].sort((a,b) => a.summary.localeCompare(b.summary)),
+    expected.sort((a,b) => a.summary.localeCompare(b.summary)));
 }
 
 const response = await getCareersForMajor('chinese');

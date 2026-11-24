@@ -9,3 +9,6 @@ index++;location.hash=entries[index].hash;handlers.popstate();router.sync();asse
 assert.equal(parseRoute('#/detail?major=chinese&career=editor&part=paths').detailPart,'paths');assert.equal(parseRoute('#/assess?q=-5').questionIndex,0);assert.equal(parseRoute('#/missing').stage,'home');assert.ok(routeFor(state).includes('career=editor'));
 state={tab:'explore',stage:'home',majorId:null,directionId:null,careerId:null,questionIndex:0,answers:{},historyGeneration:1};router.sync();index--;location.hash=entries[index].hash;handlers.popstate();router.sync();assert.deepEqual(state.answers,{},'Reset invalidates old answer snapshots');
 console.log('PASS: real hash routes, push/replace semantics, browser back/forward, answer preservation, scoped URL state and route validation.');
+
+assert.equal(parseRoute('#/detail?major=journalism&career=editor&part=recruitment').detailPart,'recruitment');
+assert.match(routeFor({...state,tab:'explore',stage:'detail',detailPart:'recruitment'}), /part=recruitment/);

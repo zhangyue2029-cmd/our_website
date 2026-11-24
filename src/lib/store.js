@@ -1,3 +1,5 @@
+import { normalizeDetailPart } from "./router.js";
+
 const KEY = "quxiang-journey-v1";
 const fresh = () => ({ historyGeneration:0, categoryId:"chinese", stage: "home", tab: "explore", majorId: null, directionId: null, detailPart: "overview", careerId: null,
   answers: {}, questionIndex: 0, selectedSkillId: null, focusingCareerId: null, lastFeedback: null });
@@ -21,7 +23,7 @@ function load() {
       tab: ["explore", "direction", "mine"].includes(parsed.tab) ? parsed.tab : "explore",
       categoryId: typeof parsed.categoryId === "string" ? parsed.categoryId : "chinese",
       majorId: typeof parsed.majorId === "string" ? parsed.majorId : null,
-      detailPart: parsed.detailPart === "paths" ? "paths" : "overview",
+      detailPart: normalizeDetailPart(parsed.detailPart),
       directionId: typeof parsed.directionId === "string" ? parsed.directionId : null,
       careerId: typeof parsed.careerId === "string" ? parsed.careerId : null,
       questionIndex: Number.isInteger(parsed.questionIndex) ? Math.max(0, parsed.questionIndex) : 0,

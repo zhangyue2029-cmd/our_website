@@ -111,3 +111,7 @@ data/recruitment/journalism-general-v1.json 存放以现有职业标识关联的
 - db/recruitment/001_candidate_batches.sql 定义私有候选批次、活动发布版本、审计及前台和分析共用的发布视图。
 - tools/recruitment-import.mjs 将种子与来源索引生成 psql 导入语句。
 - tests/recruitment-db.sh 通过隔离 PostgreSQL 容器验证导入和权限、审核及版本切换。网站仍通过原静态服务器启动，业务接口尚未连接该数据层。
+
+### 通用招聘资料发布到静态站
+
+db/recruitment/export_active.sql 从活动发布视图导出当前版本，tools/recruitment-export.mjs 将结果生成 src/data/recruitment-reference.js。职业详情仅在新闻传播路径显示该资料，招聘要求可通过 part=recruitment 恢复。站点按代码部署更新快照，数据库回退后需重新导出和部署。

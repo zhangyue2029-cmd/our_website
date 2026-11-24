@@ -14,3 +14,16 @@ node tools/recruitment-import.mjs | psql -X -v ON_ERROR_STOP=1
 数据库默认不向 PUBLIC 开放该模式和操作。应用接入时，导入账号只需模式 USAGE 和导入函数执行权，审核操作账号只需模式 USAGE 和两项审核、发布函数执行权。前台和分析读取者只需模式 USAGE 和已发布要求视图的 SELECT 权限。源索引和审计表单独授权给审核人员。应使用可归责的数据库登录执行审核，审计记录该登录角色。
 
 每批导入后待审核。审核者核对每条归纳及出处，再决定通过或退回，并提供原因。批准后须另行启用版本。发布后可重新启用以前批准的版本完成回退，或传入空版本撤回当前发布。测试中的批准与发布发生在临时数据库，当前用户附件在项目种子中保持待审核状态。
+
+已启用的版本可导出为静态站点的通用招聘资料。使用拥有发布视图读取权限的连接运行：
+
+```sh
+set -o pipefail
+export_dir=$(mktemp -d .recruitment-export.XXXXXX)
+trap 'rm -rf "$export_dir"' EXIT
+psql -XqAt -v ON_ERROR_STOP=1 -f db/recruitment/export_active.sql |
+  node tools/recruitment-export.mjs > "$export_dir/reference.js"
+mv "$export_dir/reference.js" src/data/recruitment-reference.js
+```
+
+导出物只包含职业标识、类别、通用要求和资料版本。启用、回退或撤回数据库版本后，静态部署需要相应地重新导出并部署。撤回所有版本时导出会报错，部署方需要移除公开资料后再发布。
