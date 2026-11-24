@@ -5,7 +5,7 @@ import {
 
 export function BackgroundForm() {
   return `<form data-background-form>
-    <p>草稿自动保存在当前浏览器，请勿填写联系方式或证件号码。</p>
+    <p>草稿自动保存在当前浏览器。完成填写时，会将有效经历发送给 AI 分析服务。请勿填写联系方式或证件号码。</p>
     <p role="status" data-draft-status></p>
     ${backgroundCategories.map(([id, title]) => `<fieldset class="card info-card" data-background-category="${id}">
       <legend>${title}</legend>
@@ -20,6 +20,7 @@ export function BackgroundForm() {
       <button class="btn btn-ghost" type="button" data-background-clear>清除这个职业的草稿</button>
     </div>
     <p role="status" data-background-feedback></p>
+    <div class="card info-card" data-background-report hidden></div>
     <template data-background-row>
       <div class="background-row">
         <label>名称<input name="entryName" maxlength="${backgroundLimits.name}"></label>
@@ -32,6 +33,41 @@ export function BackgroundForm() {
   </form>`;
 }
 
+function renderReport(container, result) {
+  const element = (tag, text) => {
+    const node = document.createElement(tag);
+    node.textContent = text;
+    return node;
+  };
+  const content = [
+    element("h2", "职业准备分析"),
+    element("p", result.summary),
+    element("p", `资料版本：${result.referenceVersion}。本报告依据通用招聘参考，样本不足以计算证据覆盖率。`),
+  ];
+  const sections = [
+    ["经历迁移", result.transfer],
+    ["岗位要求与补充学习", result.gaps],
+    ["接下来可以做什么", result.actions],
+  ];
+  for (const [title, rows] of sections) {
+    content.push(element("h3", title));
+    if (!rows.length) {
+      content.push(element("p", "目前没有充分的经历可与这些要求对应。"));
+      continue;
+    }
+    const list = document.createElement("ul");
+    for (const row of rows) {
+      const context = row.entry ? `${row.entry} · ${row.requirement}` : row.requirement;
+      const item = element("li", "");
+      item.append(element("strong", context), element("p", row.text));
+      list.append(item);
+    }
+    content.push(list);
+  }
+  container.replaceChildren(...content);
+  container.hidden = false;
+}
+
 export function mountBackgroundForm(form, careerId) {
   const { draft, available } = readBackgroundDraft(careerId);
   const fields = Array.from(form.querySelectorAll("[data-background-category]"));
@@ -39,6 +75,15 @@ export function mountBackgroundForm(form, careerId) {
   const template = form.querySelector("template");
   const status = form.querySelector("[data-draft-status]");
   const feedback = form.querySelector("[data-background-feedback]");
+  const report = form.querySelector("[data-background-report]");
+  const submit = form.querySelector("[type=submit]");
+  let lastRequest;
+
+  function invalidateReport() {
+    feedback.textContent = "";
+    report.hidden = true;
+    report.replaceChildren();
+  }
 
   function storageMessage(working) {
     status.textContent = working ? "" : "此浏览器无法保存草稿。离开页面前请自行保留内容。";
@@ -69,7 +114,7 @@ export function mountBackgroundForm(form, careerId) {
       row.remove();
       add.disabled = false;
       add.focus();
-      feedback.textContent = "";
+      invalidateReport();
       save();
     });
     return row;
@@ -84,7 +129,7 @@ export function mountBackgroundForm(form, careerId) {
     });
   }
   form.addEventListener("input", () => {
-    feedback.textContent = "";
+    invalidateReport();
     save();
   });
   form.querySelector("[data-background-clear]").addEventListener("click", () => {
@@ -93,20 +138,45 @@ export function mountBackgroundForm(form, careerId) {
       field.querySelector("[data-background-add]").disabled = false;
     }
     narrative.value = "";
+    invalidateReport();
     save();
     feedback.textContent = "已清空表单。";
   });
-  form.addEventListener("submit", event => {
+  form.addEventListener("submit", async event => {
     event.preventDefault();
+    if (submit.disabled) return;
     const draft = draftFromForm();
     if (!hasBackgroundEvidence(draft)) {
       feedback.textContent = "请至少填写一个经历名称，或在自由补充中描述一项经历。";
       return;
     }
-    const saved = writeBackgroundDraft(careerId, draft);
-    storageMessage(saved);
-    feedback.textContent = saved
-      ? "草稿已保存。职业分析尚未开放。"
-      : "职业分析尚未开放，浏览器也未能保存草稿。";
+
+    storageMessage(writeBackgroundDraft(careerId, draft));
+    const signature = JSON.stringify(draft);
+    invalidateReport();
+    submit.disabled = true;
+    feedback.textContent = "正在分析个人背景…";
+    try {
+      if (lastRequest?.signature !== signature) {
+        lastRequest = { signature, id: crypto.randomUUID() };
+      }
+      const response = await fetch("/api/background-analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ careerId, draft, requestId: lastRequest.id }),
+      });
+      const result = await response.json();
+      if (JSON.stringify(draftFromForm()) !== signature) return;
+      if (!response.ok) {
+        feedback.textContent = result.error || "暂时无法分析，请重试。";
+        return;
+      }
+      renderReport(report, result);
+      feedback.textContent = "分析完成。";
+    } catch {
+      if (JSON.stringify(draftFromForm()) === signature) feedback.textContent = "暂时无法分析，请重试。";
+    } finally {
+      submit.disabled = false;
+    }
   });
 }

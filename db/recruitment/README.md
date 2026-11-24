@@ -26,4 +26,4 @@ psql -XqAt -v ON_ERROR_STOP=1 -f db/recruitment/export_active.sql |
 mv "$export_dir/reference.js" src/data/recruitment-reference.js
 ```
 
-导出物只包含职业标识、类别、通用要求和资料版本。启用、回退或撤回数据库版本后，静态部署需要相应地重新导出并部署。撤回所有版本时导出会报错，部署方需要移除公开资料后再发布。
+导出物只包含要求标识、职业标识、类别、通用要求和资料版本。启用、回退或撤回数据库版本后，静态部署需要相应地重新导出并部署。撤回所有版本时导出会报错，部署方需要移除公开资料后再发布。

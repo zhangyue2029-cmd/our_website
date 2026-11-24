@@ -57,7 +57,7 @@ assert.equal(recruitmentReference.version, seed.version);
 assert.deepEqual(Object.keys(recruitmentReference.careers).sort(), careerIds);
 for (const careerId of careerIds) {
   const expected = seed.requirements.filter(item => item.careerId === careerId)
-    .map(({ category, summary }) => ({ category, summary }));
+    .map(({ id, category, summary }) => ({ id, category, summary }));
   assert.deepEqual([...recruitmentReference.careers[careerId]].sort((a,b) => a.summary.localeCompare(b.summary)),
     expected.sort((a,b) => a.summary.localeCompare(b.summary)));
 }

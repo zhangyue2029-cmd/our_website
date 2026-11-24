@@ -4,7 +4,14 @@ const path = require("path");
 const root = __dirname;
 const port = Number(process.env.QX_PORT || 8124);
 const mime = { ".webp":"image/webp", ".svg":"image/svg+xml", ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8" };
-const server = http.createServer((req, res) => {
+const analysis = import("./server/background-analysis.mjs").then(({ createAnalysisHandler, createOpenAIProvider }) =>
+  createAnalysisHandler(createOpenAIProvider({ apiKey: process.env.OPENAI_API_KEY, model: process.env.QX_AI_MODEL }))
+);
+const server = http.createServer(async (req, res) => {
+  if (req.url.split("?")[0] === "/api/background-analysis") {
+    const handleAnalysis = await analysis;
+    return handleAnalysis(req, res);
+  }
   if (!["GET", "HEAD"].includes(req.method)) { res.writeHead(405, { Allow: "GET, HEAD" }); res.end(); return; }
   let pathname;
   try { pathname = decodeURIComponent(req.url.split("?")[0]); }

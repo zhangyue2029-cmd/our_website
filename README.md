@@ -39,3 +39,9 @@ V2.0 基于网站初版提交 `e6faf3c27357da90cf13a6d6ebc0c766246612d2` 增量�
 - [产品设计文档](memory-bank/design-document.md)
 - [技术栈选型（推荐方案）](memory-bank/tech-stack.md)
 - [实施计划](memory-bank/implementation-plan.md)
+
+## 访客职业分析
+
+职业详情中的「填写个人背景」可保存本地草稿。服务端同时配置 `OPENAI_API_KEY` 和 `QX_AI_MODEL` 后，「完成填写」会调用模型。模型需要支持 Chat Completions 的 JSON 对象输出。密钥由部署环境注入。
+
+当前报告依据通用招聘参考，提供经历迁移、补充学习和行动建议。样本充分性规则待确定，暂不计算覆盖率。没有服务端配置时，填写页仍可作为本地草稿使用。云端测试使用测试响应验证成功路径，真实模型联调需要已配置的运行环境。

@@ -13,5 +13,14 @@ assert.equal((await request("/missing.js")).status,404);
 for (const seed of ["journalism-general-v1.json", "journalism-sources-v1.json"]) {
   assert.equal((await request("/data/recruitment/" + seed)).status, 404, seed);
 }
+assert.equal((await request("/server/background-analysis.mjs")).status,404);
+assert.equal((await request("/api/background-analysis")).status,405);
+const attempt = await fetch("http://127.0.0.1:" + (process.env.QX_PORT || 8124) + "/api/background-analysis", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ careerId: "journalist", requestId: "36bf7ec6-078d-4b58-82a2-ca946dabd6cc", draft: { narrative: "校刊采访" } }),
+});
+assert.equal(attempt.status,503);
+assert.match((await attempt.json()).error, /职业分析服务暂不可用/);
 console.log(`PASS: ${files.length} resources returned HTTP 200; JS/CSS/SVG/WebP MIME valid; backup and recruitment candidates are not served; malformed URL handled.`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

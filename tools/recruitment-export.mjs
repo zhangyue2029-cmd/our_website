@@ -8,8 +8,8 @@ if (typeof version !== 'string' || !Array.isArray(requirements) || requirements.
 }
 
 const careers = Object.create(null);
-for (const { careerId, category, summary } of requirements) {
-  (careers[careerId] ??= []).push({ category, summary });
+for (const { id, careerId, category, summary } of requirements) {
+  (careers[careerId] ??= []).push({ id, category, summary });
 }
 const snapshot = JSON.stringify({ version, careers }, null, 2);
 process.stdout.write('// Generated from the active recruitment release.\nexport const recruitmentReference = ' + snapshot + ';\n');

@@ -1,5 +1,5 @@
 const {spawn}=require('node:child_process');const path=require('node:path');
-const root=path.resolve(__dirname,'..');const env={...process.env,QX_PORT:'18124'};
+const root=path.resolve(__dirname,'..');const env={...process.env,QX_PORT:'18124',OPENAI_API_KEY:'',QX_AI_MODEL:''};
 const server=spawn(process.execPath,[path.join(root,'_server.cjs')],{env});let ready=false;
 const watchdog=setTimeout(()=>{console.error('HTTP test timeout');server.kill();process.exitCode=1;},8000);
 server.stdout.on('data',()=>{if(ready)return;ready=true;const test=spawn(process.execPath,[path.join(__dirname,'http-smoke.cjs')],{env,stdio:'inherit'});test.on('exit',code=>{clearTimeout(watchdog);process.exitCode=code||0;server.kill();});});

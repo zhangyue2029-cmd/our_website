@@ -119,3 +119,7 @@ db/recruitment/export_active.sql 从活动发布视图导出当前版本，tools
 ### 访客个人背景
 
 src/components/Background.js 提供表单和交互，src/lib/background-draft.js 管理输入结构、长度、验证和按职业隔离的本地草稿。src/styles/background.css 提供表单布局。background 路由只承载目标职业和原详情标签，填写内容保存在独立本地存储键中。tests/background-draft.mjs 验证草稿规则、URL 隔离和存储失败。
+
+### 背景分析服务
+
+`_server.cjs` 将 `POST /api/background-analysis` 交给 `server/background-analysis.mjs`。服务端从批准的静态发布版本选取相应职业要求，将有效经历发送给可选 OpenAI 适配器，校验返回的招聘要求和经历标识。以请求标识及输入签名在进程内合并重复请求，成功结果在内存中保留约五分钟供重试。页面用文本节点展示结果。草稿进入本地存储，分析结果不写入浏览器存储或数据库，刷新会回到填写页。
