@@ -22,8 +22,15 @@ const interactions = Promise.all([import("./server/community-interactions.mjs"),
   .then(([{ createCommunityInteractions }, db]) => createCommunityInteractions(db));
 const moderation = Promise.all([import("./server/community-moderation.mjs"), database])
   .then(([{ createCommunityModeration }, db]) => createCommunityModeration(db));
+const messages = Promise.all([import("./server/messages.mjs"), database])
+  .then(([{ createMessageHandler }, db]) => createMessageHandler(db));
 const server = http.createServer(async (req, res) => {
   const route = req.url.split("?")[0];
+  const conversation = route.match(/^\/api\/account\/conversations(?:\/([^/]+))?$/);
+  if (conversation) {
+    const handleMessages = await messages;
+    return handleMessages(req, res, conversation[1] ?? null);
+  }
   if (route.startsWith("/api/account/")) {
     const handleAccounts = await accounts;
     return handleAccounts(req, res, route);

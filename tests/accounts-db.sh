@@ -16,6 +16,7 @@ docker exec -i "$container" psql -Xq -U postgres -v ON_ERROR_STOP=1 < db/account
 docker exec -i "$container" psql -Xq -U postgres -v ON_ERROR_STOP=1 < db/community/001_posts.sql
 docker exec -i "$container" psql -Xq -U postgres -v ON_ERROR_STOP=1 < db/community/002_interactions.sql
 docker exec -i "$container" psql -Xq -U postgres -v ON_ERROR_STOP=1 < db/community/003_moderation.sql
+docker exec -i "$container" psql -Xq -U postgres -v ON_ERROR_STOP=1 < db/community/004_messages.sql
 binding=$(docker port "$container" 5432/tcp)
 export QX_DATABASE_URL="postgresql://postgres:${password}@${binding}/postgres"
 if [[ $# -gt 0 ]]; then

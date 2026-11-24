@@ -135,3 +135,7 @@ src/components/Background.js 提供表单和交互，src/lib/background-draft.js
 ### 圈子互动与审核
 
 `db/community/002_interactions.sql` 定义评论、反应和举报，`003_moderation.sql` 定义独立授权与审计。`server/community-interactions.mjs` 处理公开评论和受会话保护的互动，`server/community-moderation.mjs` 提供举报队列及人工隐藏、恢复。对应界面分别由 `PostInteractions.js` 和 `Moderation.js` 提供。
+
+### 私信请求
+
+`db/community/004_messages.sql` 定义请求、消息和私信举报。`server/messages.mjs` 只允许从公开非匿名帖子发起请求，按会话参与者限制读取，按接收人和会话状态限制接受或拒绝。消息写入与屏蔽使用同一会话行锁。`Messages.js` 提供个人中心的请求和会话，`src/lib/account-request.js` 供相关页面请求账号接口。

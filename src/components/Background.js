@@ -1,5 +1,5 @@
 import { renderReport } from "./AnalysisReport.js";
-import { accountRequest } from "./Account.js";
+import { accountRequest } from "../lib/account-request.js";
 import {
   backgroundCategories, backgroundLimits, hasBackgroundEvidence, normalizeBackground,
   readBackgroundDraft, writeBackgroundDraft,

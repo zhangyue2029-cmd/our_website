@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import pg from 'pg';
 import { createAccountHandler } from '../server/accounts.mjs';
 import { createAnalysisHandler } from '../server/background-analysis.mjs';
+import { createMessageHandler } from '../server/messages.mjs';
 import { createCommunityModeration } from '../server/community-moderation.mjs';
 import { createCommunityInteractions } from '../server/community-interactions.mjs';
 import { createCommunityHandler } from '../server/community.mjs';
@@ -17,6 +18,7 @@ test('real database isolates sessions and drafts by owner', async () => {
   const community = createCommunityHandler(db);
   const interactions = createCommunityInteractions(db);
   const moderation = createCommunityModeration(db);
+  const messages = createMessageHandler(db);
   let resolveSlow;
   let slowStarted;
   const waiting = new Promise(resolve => { slowStarted = resolve; });
@@ -34,6 +36,8 @@ test('real database isolates sessions and drafts by owner', async () => {
   }, { db });
   const server = createServer((req, res) => {
     if (req.url === '/api/background-analysis') return analysis(req, res);
+    const conversation = req.url.match(/^\/api\/account\/conversations(?:\/([^/]+))?$/);
+    if (conversation) return messages(req, res, conversation[1] ?? null);
     if (req.url === '/api/community/moderation') return moderation(req, res);
     if (req.url.endsWith('/interactions')) return interactions(req, res, req.url.split('/')[4]);
     if (req.url.startsWith('/api/community/')) return community(req, res);
@@ -137,6 +141,35 @@ test('real database isolates sessions and drafts by owner', async () => {
       [{ decision: 'hidden' }, { decision: 'visible' }]);
 
 
+    assert.equal((await request('conversations', { postId: id }, secondCookie)).status, 409);
+    assert.equal((await request('conversations', { postId: otherPost }, secondCookie)).status, 409);
+    assert.equal((await request('conversations', { postId: otherPost }, firstCookie)).status, 201);
+    assert.equal((await request('conversations', { postId: otherPost }, firstCookie)).status, 409);
+    const firstInbox = await (await request('conversations', undefined, firstCookie)).json();
+    const recipientInbox = await (await request('conversations', undefined, secondCookie)).json();
+    const chat = 'conversations/' + firstInbox.conversations[0].id;
+    assert.equal(firstInbox.conversations[0].incoming, false);
+    assert.equal(recipientInbox.conversations[0].incoming, true);
+    assert.equal((await request(chat, { action: 'send', body: '请接受后再聊' }, firstCookie)).status, 403);
+    assert.equal((await request(chat, { action: 'accept' }, firstCookie)).status, 403);
+    assert.equal((await request(chat, { action: 'accept' }, secondCookie)).status, 200);
+    assert.equal((await request(chat, { action: 'send', body: '私人对话' }, firstCookie)).status, 201);
+    const received = (await (await request(chat, undefined, secondCookie)).json()).messages[0];
+    assert.equal(received.body, '私人对话');
+    assert.equal(received.mine, false);
+    assert.equal((await request(chat, { action: 'report', messageId: received.id, reason: '需要复核' }, secondCookie)).status, 200);
+    const outsider = await request('register', { ...member, username: 'outsider_one' });
+    const outsiderCookie = outsider.headers.get('set-cookie').split(';')[0];
+    assert.equal((await request(chat, undefined, outsiderCookie)).status, 404);
+    assert.equal((await request(chat, { action: 'block' }, outsiderCookie)).status, 404);
+    assert.equal((await request(chat, { action: 'block' }, secondCookie)).status, 200);
+    assert.equal((await request(chat, { action: 'send', body: '已屏蔽' }, firstCookie)).status, 403);
+    assert.equal((await request('conversations', { postId: otherPost }, outsiderCookie)).status, 201);
+    const outsiderInbox = await (await request('conversations', undefined, outsiderCookie)).json();
+    const secondChat = 'conversations/' + outsiderInbox.conversations[0].id;
+    assert.equal((await request(secondChat, { action: 'decline' }, secondCookie)).status, 200);
+    assert.equal((await request(secondChat, { action: 'send', body: '已拒绝' }, outsiderCookie)).status, 403);
+
     const analyze = (narrative, saveReport, cookie) => request('background-analysis', {
       requestId: randomUUID(), careerId: 'journalist', draft: { narrative }, saveReport,
     }, cookie);
@@ -164,7 +197,7 @@ test('real database isolates sessions and drafts by owner', async () => {
     assert.deepEqual(await (await request('background', undefined, replacement)).json(), { drafts: [] });
     assert.equal((await request('logout', {}, replacement)).status, 200);
     assert.equal((await request('background', undefined, replacement)).status, 401);
-    assert.equal((await db.query("SELECT count(*)::int AS count FROM accounts.member WHERE password_hash IS NOT NULL")).rows[0].count, 2);
+    assert.equal((await db.query("SELECT count(*)::int AS count FROM accounts.member WHERE password_hash IS NOT NULL")).rows[0].count, 3);
   } finally {
     server.closeAllConnections();
     await new Promise(resolve => server.close(resolve));

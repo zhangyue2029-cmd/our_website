@@ -1,22 +1,8 @@
+import { accountRequest } from "../lib/account-request.js";
+import { mountInbox } from "./Messages.js";
 import { mountModerationPanel } from "./Moderation.js";
 import { renderReport } from "./AnalysisReport.js";
 import { writeBackgroundDraft } from "../lib/background-draft.js";
-
-export async function accountRequest(path, body) {
-  const options = body === undefined ? undefined : {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  };
-  const response = await fetch("/api/account/" + path, options);
-  const value = await response.json();
-  if (!response.ok) {
-    const error = new Error(value.error || "账号服务暂时不可用。");
-    error.status = response.status;
-    throw error;
-  }
-  return value;
-}
 
 export function AccountPanel() {
   return `<section class="card info-card background-page account-panel" data-account-panel>
@@ -50,6 +36,8 @@ export function AccountPanel() {
       <div data-account-reports></div>
       <h3>收藏的帖子</h3>
       <ul data-account-bookmarks></ul>
+      <h3>私信</h3>
+      <div data-message-inbox></div>
       <section data-community-moderation hidden>
         <h3>社区举报审核</h3>
         <p data-moderation-status role="status"></p>
@@ -67,6 +55,7 @@ export async function mountAccountPanel(root, careers) {
   const reports = root.querySelector("[data-account-reports]");
   const bookmarks = root.querySelector("[data-account-bookmarks]");
   const moderation = root.querySelector("[data-community-moderation]");
+  const inbox = root.querySelector("[data-message-inbox]");
 
   let profileRevision = 0;
 
@@ -77,6 +66,7 @@ export async function mountAccountPanel(root, careers) {
     list.replaceChildren();
     reports.replaceChildren();
     bookmarks.replaceChildren();
+    inbox.replaceChildren();
     moderation.hidden = true;
     moderation.querySelector("[data-reports-list]").replaceChildren();
     root.querySelector("[data-account-name]").textContent = profile
@@ -195,7 +185,8 @@ export async function mountAccountPanel(root, careers) {
   function loadPrivateData() {
     const revision = profileRevision;
     return Promise.all([loadDrafts(), loadReports(), loadBookmarks(),
-      mountModerationPanel(moderation, () => revision === profileRevision)]);
+      mountModerationPanel(moderation, () => revision === profileRevision),
+      mountInbox(inbox, () => revision === profileRevision)]);
   }
 
   for (const action of ["login", "register"]) {

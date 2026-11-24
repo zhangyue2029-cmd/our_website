@@ -1,5 +1,5 @@
 import { PostInteractions } from "./PostInteractions.js";
-import { accountRequest } from "./Account.js";
+import { accountRequest } from "../lib/account-request.js";
 import { recruitmentReference } from "../data/recruitment-reference.js";
 
 export function CommunityPanel(careers) {
@@ -66,7 +66,27 @@ export function mountCommunityPanel(root, careers) {
     const text = document.createElement("p");
     text.className = "community-post-body";
     text.textContent = item.body;
-    article.append(title, meta, text, PostInteractions(item.id));
+    article.append(title, meta, text);
+    if (!item.anonymous) {
+      const contact = document.createElement("button");
+      contact.type = "button";
+      contact.className = "text-button";
+      contact.textContent = "发起私信请求";
+      const message = document.createElement("p");
+      message.setAttribute("role", "status");
+      contact.addEventListener("click", async () => {
+        contact.disabled = true;
+        try {
+          await accountRequest("conversations", { postId: item.id });
+          message.textContent = "请求已发送，在「我的」中查看。";
+        } catch (error) {
+          message.textContent = error.message;
+          contact.disabled = false;
+        }
+      });
+      article.append(contact, message);
+    }
+    article.append(PostInteractions(item.id));
     feed.append(article);
   }
 
