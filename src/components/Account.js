@@ -1,3 +1,4 @@
+import { mountModerationPanel } from "./Moderation.js";
 import { renderReport } from "./AnalysisReport.js";
 import { writeBackgroundDraft } from "../lib/background-draft.js";
 
@@ -47,6 +48,13 @@ export function AccountPanel() {
       <ul data-account-drafts></ul>
       <h3>职业报告</h3>
       <div data-account-reports></div>
+      <h3>收藏的帖子</h3>
+      <ul data-account-bookmarks></ul>
+      <section data-community-moderation hidden>
+        <h3>社区举报审核</h3>
+        <p data-moderation-status role="status"></p>
+        <div data-reports-list></div>
+      </section>
     </div>
   </section>`;
 }
@@ -57,19 +65,29 @@ export async function mountAccountPanel(root, careers) {
   const member = root.querySelector("[data-account-member]");
   const list = root.querySelector("[data-account-drafts]");
   const reports = root.querySelector("[data-account-reports]");
+  const bookmarks = root.querySelector("[data-account-bookmarks]");
+  const moderation = root.querySelector("[data-community-moderation]");
+
+  let profileRevision = 0;
 
   function show(profile) {
+    profileRevision += 1;
     guest.hidden = Boolean(profile);
     member.hidden = !profile;
     list.replaceChildren();
     reports.replaceChildren();
+    bookmarks.replaceChildren();
+    moderation.hidden = true;
+    moderation.querySelector("[data-reports-list]").replaceChildren();
     root.querySelector("[data-account-name]").textContent = profile
       ? `${profile.displayName} · ${profile.communityRole === "employed" ? "已就业分享者（未认证）" : "在校生（自报）"}`
       : "";
   }
 
   async function loadDrafts() {
+    const revision = profileRevision;
     const { drafts } = await accountRequest("background");
+    if (revision !== profileRevision) return;
     list.replaceChildren();
     if (!drafts.length) {
       const item = document.createElement("li");
@@ -114,8 +132,49 @@ export async function mountAccountPanel(root, careers) {
     }
   }
 
+  async function loadBookmarks() {
+    const revision = profileRevision;
+    const { posts } = await accountRequest("bookmarks");
+    if (revision !== profileRevision) return;
+    bookmarks.replaceChildren();
+    if (!posts.length) {
+      const entry = document.createElement("li");
+      entry.textContent = "还没有收藏的帖子。";
+      bookmarks.append(entry);
+    }
+    for (const post of posts) {
+      const row = document.createElement("li");
+      const item = document.createElement("details");
+      const title = document.createElement("summary");
+      title.textContent = post.title;
+      const body = document.createElement("p");
+      body.className = "community-post-body";
+      body.textContent = post.body;
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "text-button";
+      remove.textContent = "取消收藏";
+      remove.addEventListener("click", async () => {
+        remove.disabled = true;
+        try {
+          await accountRequest("bookmarks", { postId: post.id });
+          await loadBookmarks();
+        } catch (error) {
+          status.textContent = error.message;
+        } finally {
+          remove.disabled = false;
+        }
+      });
+      item.append(title, body, remove);
+      row.append(item);
+      bookmarks.append(row);
+    }
+  }
+
   async function loadReports() {
+    const revision = profileRevision;
     const result = await accountRequest("reports");
+    if (revision !== profileRevision) return;
     reports.replaceChildren();
     if (result.reports.length === 0) {
       reports.textContent = "还没有保存的职业报告。";
@@ -133,6 +192,12 @@ export async function mountAccountPanel(root, careers) {
     }
   }
 
+  function loadPrivateData() {
+    const revision = profileRevision;
+    return Promise.all([loadDrafts(), loadReports(), loadBookmarks(),
+      mountModerationPanel(moderation, () => revision === profileRevision)]);
+  }
+
   for (const action of ["login", "register"]) {
     root.querySelector(`[data-account-${action}]`).addEventListener("submit", async event => {
       event.preventDefault();
@@ -145,7 +210,7 @@ export async function mountAccountPanel(root, careers) {
         form.reset();
         show(profile);
         status.textContent = "已登录。";
-        await Promise.all([loadDrafts(), loadReports()]);
+        await loadPrivateData();
       } catch (error) {
         status.textContent = error.message;
       } finally {
@@ -172,7 +237,7 @@ export async function mountAccountPanel(root, careers) {
     const { profile } = await accountRequest("session");
     show(profile);
     status.textContent = profile ? "" : "登录后可保存私人背景档案。";
-    if (profile) await Promise.all([loadDrafts(), loadReports()]);
+    if (profile) await loadPrivateData();
   } catch (error) {
     status.textContent = error.message;
   }

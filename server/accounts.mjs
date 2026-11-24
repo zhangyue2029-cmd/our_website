@@ -191,6 +191,26 @@ export function createAccountHandler(db) {
         );
         return reply(res, 200, { reports: rows });
       }
+      if (route === "/api/account/bookmarks" && ["GET", "POST"].includes(req.method)) {
+        const member = await currentMember(db, digest);
+        if (!member) return reply(res, 401, { error: "登录后可查看收藏。" });
+        if (req.method === "POST") {
+          const body = await readJson(req);
+          if (typeof body?.postId !== "string" || !/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(body.postId)) {
+            return reply(res, 400, { error: "请选择要取消收藏的帖子。" });
+          }
+          await db.query("DELETE FROM community.reaction WHERE post_id = $1 AND member_id = $2 AND kind = 'bookmark'",
+            [body.postId, member.id]);
+          return reply(res, 200, { removed: true });
+        }
+        const { rows } = await db.query(
+          `SELECT p.id, p.title, p.body FROM community.public_posts AS p
+           JOIN community.reaction AS r ON p.id = r.post_id
+           WHERE r.kind = 'bookmark' AND r.member_id = $1 ORDER BY p.created_at DESC, p.id DESC LIMIT 50`,
+          [member.id],
+        );
+        return reply(res, 200, { posts: rows });
+      }
       return reply(res, 404, { error: "账号操作不存在。" });
     } catch {
       return reply(res, 503, { error: "账号服务暂时不可用，请稍后重试。" });

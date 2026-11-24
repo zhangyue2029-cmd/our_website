@@ -1,3 +1,4 @@
+import { PostInteractions } from "./PostInteractions.js";
 import { accountRequest } from "./Account.js";
 import { recruitmentReference } from "../data/recruitment-reference.js";
 
@@ -65,7 +66,7 @@ export function mountCommunityPanel(root, careers) {
     const text = document.createElement("p");
     text.className = "community-post-body";
     text.textContent = item.body;
-    article.append(title, meta, text);
+    article.append(title, meta, text, PostInteractions(item.id));
     feed.append(article);
   }
 

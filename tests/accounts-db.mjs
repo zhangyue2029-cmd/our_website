@@ -6,6 +6,8 @@ import { test } from 'node:test';
 import pg from 'pg';
 import { createAccountHandler } from '../server/accounts.mjs';
 import { createAnalysisHandler } from '../server/background-analysis.mjs';
+import { createCommunityModeration } from '../server/community-moderation.mjs';
+import { createCommunityInteractions } from '../server/community-interactions.mjs';
 import { createCommunityHandler } from '../server/community.mjs';
 import { parseRoute, routeFor } from '../src/lib/router.js';
 
@@ -13,6 +15,8 @@ test('real database isolates sessions and drafts by owner', async () => {
   const db = new pg.Pool({ connectionString: process.env.QX_DATABASE_URL });
   const handle = createAccountHandler(db);
   const community = createCommunityHandler(db);
+  const interactions = createCommunityInteractions(db);
+  const moderation = createCommunityModeration(db);
   let resolveSlow;
   let slowStarted;
   const waiting = new Promise(resolve => { slowStarted = resolve; });
@@ -30,6 +34,8 @@ test('real database isolates sessions and drafts by owner', async () => {
   }, { db });
   const server = createServer((req, res) => {
     if (req.url === '/api/background-analysis') return analysis(req, res);
+    if (req.url === '/api/community/moderation') return moderation(req, res);
+    if (req.url.endsWith('/interactions')) return interactions(req, res, req.url.split('/')[4]);
     if (req.url.startsWith('/api/community/')) return community(req, res);
     return handle(req, res, req.url);
   }).listen(0, '127.0.0.1');
@@ -85,8 +91,51 @@ test('real database isolates sessions and drafts by owner', async () => {
     assert.ok(!Object.hasOwn(published.posts[0], 'member_id'));
     const visible = await (await request('community/posts?career=editor&kind=experience')).json();
     assert.equal(visible.posts[0].author_name, member.displayName);
-    await db.query("UPDATE community.post SET status = 'hidden' WHERE id = $1", [id]);
+    const interact = 'community/posts/' + id + '/interactions';
+    assert.equal((await request(interact, { action: 'comment', body: '访客留言' })).status, 401);
+    assert.equal((await request(interact, { action: 'comment', body: '匿名作者补充' }, firstCookie)).status, 201);
+    const parent = (await (await request(interact)).json()).comments[0];
+    assert.equal(parent.author_name, null);
+    assert.ok(!Object.hasOwn(parent, 'member_id'));
+    assert.equal((await request(interact, { action: 'comment', body: '回复', parentId: parent.id }, secondCookie)).status, 201);
+    const otherPost = visible.posts[0].id;
+    assert.equal((await request('community/posts/' + otherPost + '/interactions',
+      { action: 'comment', body: '跨帖回复', parentId: parent.id }, secondCookie)).status, 404);
+    await Promise.all([1, 2].map(() => request(interact, { action: 'like', enabled: true }, secondCookie)));
+    assert.equal((await request(interact, { action: 'bookmark', enabled: true }, secondCookie)).status, 200);
+    const publicInteraction = await (await request(interact)).json();
+    assert.equal(publicInteraction.likes, 1);
+    assert.equal(publicInteraction.bookmarked, false);
+    assert.ok(publicInteraction.comments.some(comment => comment.parent_id === parent.id));
+    const secondInteraction = await (await request(interact, undefined, secondCookie)).json();
+    assert.equal(secondInteraction.liked, true);
+    assert.equal(secondInteraction.bookmarked, true);
+    assert.equal((await request(interact, { action: 'like', enabled: false }, secondCookie)).status, 200);
+    assert.equal((await (await request(interact)).json()).likes, 0);
+    await Promise.all([1, 2].map(() => request(interact, { action: 'report', reason: '待审核' }, secondCookie)));
+    assert.equal((await db.query('SELECT count(*)::int AS n FROM community.post_report')).rows[0].n, 1);
+    assert.deepEqual((await (await request('bookmarks', undefined, firstCookie)).json()).posts, []);
+    assert.equal((await (await request('bookmarks', undefined, secondCookie)).json()).posts[0].id, id);
+    assert.equal((await request('bookmarks', { postId: id }, firstCookie)).status, 200);
+    assert.equal((await (await request('bookmarks', undefined, secondCookie)).json()).posts.length, 1);
+    assert.equal((await request('bookmarks', { postId: id }, secondCookie)).status, 200);
+    assert.deepEqual((await (await request('bookmarks', undefined, secondCookie)).json()).posts, []);
+
+    const review = { postId: id, status: 'hidden', reason: '下架测试' };
+    assert.equal((await request('community/moderation', undefined, secondCookie)).status, 403);
+    assert.equal((await request('community/moderation', review, secondCookie)).status, 403);
+    await db.query("INSERT INTO community.moderator SELECT id FROM accounts.member WHERE username = $1", [member.username]);
+    const queue = await (await request('community/moderation', undefined, firstCookie)).json();
+    assert.equal(queue.reports[0].reason, '待审核');
+    assert.equal(queue.reports[0].reviewed_at, null);
+    assert.equal((await request('community/moderation', review, firstCookie)).status, 200);
     assert.deepEqual((await (await request('community/posts?career=journalist')).json()).posts, []);
+    assert.equal((await request(interact)).status, 404);
+    assert.equal((await request('community/moderation', { ...review, status: 'visible', reason: '恢复测试' }, firstCookie)).status, 200);
+    assert.equal((await request(interact)).status, 200);
+    assert.deepEqual((await db.query('SELECT decision FROM community.moderation_action ORDER BY id')).rows,
+      [{ decision: 'hidden' }, { decision: 'visible' }]);
+
 
     const analyze = (narrative, saveReport, cookie) => request('background-analysis', {
       requestId: randomUUID(), careerId: 'journalist', draft: { narrative }, saveReport,

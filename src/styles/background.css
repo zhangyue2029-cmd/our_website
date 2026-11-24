@@ -27,3 +27,7 @@
 
 #app [data-background-save-report][hidden] { display: none; }
 [data-background-save-report] input { width: auto; }
+
+.post-interactions { margin-top: 1rem; }
+.post-interactions form, [data-comment-list] article { margin: .75rem 0; }
+[data-comment-list] p { overflow-wrap: anywhere; white-space: pre-wrap; }

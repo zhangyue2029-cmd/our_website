@@ -131,3 +131,7 @@ src/components/Background.js 提供表单和交互，src/lib/background-draft.js
 - `src/components/Account.js` 接入「我的」和档案管理。背景页面只有在用户主动选择保存时才向账号写入内容。`src/components/Community.js` 提供发帖和信息流。
 
 `db/accounts/002_reports.sql` 增加按账号与职业隔离的最新报告表及生成序列，较早启动的分析即使稍后完成也不会覆盖较新结果。`src/components/AnalysisReport.js` 在访客分析和账号页共享报告渲染。
+
+### 圈子互动与审核
+
+`db/community/002_interactions.sql` 定义评论、反应和举报，`003_moderation.sql` 定义独立授权与审计。`server/community-interactions.mjs` 处理公开评论和受会话保护的互动，`server/community-moderation.mjs` 提供举报队列及人工隐藏、恢复。对应界面分别由 `PostInteractions.js` 和 `Moderation.js` 提供。

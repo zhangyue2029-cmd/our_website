@@ -48,7 +48,7 @@ V2.0 基于网站初版提交 `e6faf3c27357da90cf13a6d6ebc0c766246612d2` 增量�
 
 ## 账号与分享圈子
 
-站点配置 PostgreSQL 后，「我的」支持本地用户名账号与私人背景档案，「分享圈子」支持访客筛选和登录发帖。应用使用 `QX_DATABASE_URL` 连接数据库。安装依赖使用 `npm ci`，按顺序应用 `db/accounts/001_accounts.sql`、`db/accounts/002_reports.sql` 与 `db/community/001_posts.sql`。部署应由 HTTPS 反向代理访问本地 Node 服务，账号会话使用 Secure Cookie。
+站点配置 PostgreSQL 后，「我的」支持本地用户名账号与私人背景档案，「分享圈子」支持访客筛选和登录发帖。应用使用 `QX_DATABASE_URL` 连接数据库。安装依赖使用 `npm ci`，按顺序应用 `db/accounts/001_accounts.sql`、`db/accounts/002_reports.sql` 后，按编号应用 `db/community/` 下的迁移。部署应由 HTTPS 反向代理访问本地 Node 服务，账号会话使用 Secure Cookie。
 
 运行 `npm run test:accounts` 可在临时 PostgreSQL 中验证账号会话、背景归属、发帖权限、搜索和匿名规则。招聘数据库仍由独立迁移维护。
 
