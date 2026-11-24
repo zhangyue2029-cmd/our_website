@@ -3,7 +3,7 @@ import { normalizeDetailPart } from "./router.js";
 const KEY = "quxiang-journey-v1";
 const fresh = () => ({ historyGeneration:0, categoryId:"chinese", stage: "home", tab: "explore", majorId: null, directionId: null, detailPart: "overview", careerId: null,
   answers: {}, questionIndex: 0, selectedSkillId: null, focusingCareerId: null, lastFeedback: null });
-const stages = ["home", "choose", "majors", "focus", "explore", "detail", "market", "assess", "portrait", "structure", "distance", "advice", "gap"];
+const stages = ["home", "choose", "majors", "focus", "explore", "detail", "market", "background", "assess", "portrait", "structure", "distance", "advice", "gap"];
 let storageAvailable = true;
 
 function load() {

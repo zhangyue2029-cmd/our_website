@@ -115,3 +115,7 @@ data/recruitment/journalism-general-v1.json 存放以现有职业标识关联的
 ### 通用招聘资料发布到静态站
 
 db/recruitment/export_active.sql 从活动发布视图导出当前版本，tools/recruitment-export.mjs 将结果生成 src/data/recruitment-reference.js。职业详情仅在新闻传播路径显示该资料，招聘要求可通过 part=recruitment 恢复。站点按代码部署更新快照，数据库回退后需重新导出和部署。
+
+### 访客个人背景
+
+src/components/Background.js 提供表单和交互，src/lib/background-draft.js 管理输入结构、长度、验证和按职业隔离的本地草稿。src/styles/background.css 提供表单布局。background 路由只承载目标职业和原详情标签，填写内容保存在独立本地存储键中。tests/background-draft.mjs 验证草稿规则、URL 隔离和存储失败。

@@ -1,0 +1,17 @@
+.background-page form { display: grid; gap: 1rem; max-width: 48rem; }
+.background-page fieldset { min-width: 0; }
+.background-page legend { padding: 0 .5rem; font-weight: 700; }
+.background-page label { display: grid; gap: .35rem; }
+.background-page input,
+.background-page textarea {
+  width: 100%;
+  padding: .65rem;
+  border: 1px solid var(--muted);
+  border-radius: .5rem;
+  color: var(--ink);
+  background: var(--paper);
+  font: inherit;
+}
+.background-page .background-row { display: grid; gap: .75rem; margin-bottom: 1rem; }
+.background-page .background-row button { justify-self: start; }
+.background-page [role="status"]:empty { display: none; }

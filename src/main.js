@@ -1,3 +1,4 @@
+import { BackgroundForm, mountBackgroundForm } from "./components/Background.js";
 import { recruitmentReference } from "./data/recruitment-reference.js";
 import { ImmersivePages } from "./immersive/view.js";
 import { initImmersive, disposeImmersive } from "./immersive/controller.js";
@@ -51,6 +52,7 @@ async function hydrate(source) {
     stage = "assess";
     questionIndex = Math.max(0, questions.findIndex(q => !answers[q.id]));
   }
+  if (stage === "background" && majorId !== "journalism") stage = "detail";
   const detailPart = source.detailPart === "recruitment" && majorId !== "journalism" ? "overview" : normalizeDetailPart(source.detailPart);
   const patch = { categoryId, majorId, directionId, careerId, answers, stage, questionIndex, detailPart };
   const portrait = buildPortrait(profile, Object.fromEntries(Object.values(answers).map(a => [a.skillId, a.score])));
@@ -96,7 +98,11 @@ function renderDetail() {
  const requirements = getState().majorId === 'journalism' ? recruitmentReference.careers[c.id] : null;
  const overview=`<div class="detail-grid"><article class="card info-card"><p class="eyebrow">01 / 工作内容</p><h2>这个职业，主要做什么？</h2><ol class="work-list">${c.work.map((x,i)=>`<li><span>0${i+1}</span>${x}</li>`).join('')}</ol></article><article class="card info-card"><p class="eyebrow">02 / 工作场景</p><h2>可能在哪里工作？</h2><ul class="scene-tags">${c.scenes.map(x=>`<li>${x}</li>`).join('')}</ul><p class="fine-print">相关专业：${cache.majors.filter(m=>c.relatedMajorIds.includes(m.id)).map(m=>m.name).join(' · ')}</p></article></div>`;
  const paths=`<article class="career-paths"><p class="eyebrow">相邻职业 / 原有关系数据</p><h2>沿着联系，看看更多可能。</h2><div class="related-careers">${c.connections.map(id=>cache.allCareers.find(x=>x.id===id)).filter(Boolean).map(x=>`<button class="btn btn-ghost" data-major-career="${x.id}">${x.name}${Icon('arrow')}</button>`).join('')}</div><p>${c.marketIntro}</p><p class="fine-print">相邻关系用于探索，不等于职业晋升路径；本项目没有可靠的薪资、年限与晋升数据。</p></article>`;
- return `<section class="stage-enter"><div class="spatial-heading">${heading('04 / CAREER PROFILE',c.name,c.tagline,'explore')}${CareerArt(c.id)}</div><nav class="detail-tabs" aria-label="职业档案分页"><button data-detail-part="overview" ${part==='overview'?'aria-current="page"':''}>工作与场景</button><button data-detail-part="paths" ${part==='paths'?'aria-current="page"':''}>相邻职业与下一步</button>${requirements?.length ? `<button data-detail-part="recruitment" ${part==='recruitment'?'aria-current="page"':''}>招聘要求</button>` : ''}</nav>${part==='paths'?paths:part==='recruitment'&&requirements?.length?renderRecruitmentReference(requirements):overview}<div class="page-actions"><button class="btn btn-primary" data-to="market">查看 ${cache.profile.length} 项能力要求 ${Icon('arrow')}</button><button class="text-button" data-resume-assess>看看我的能力 ${Icon('arrow')}</button></div></section>`;
+ return `<section class="stage-enter"><div class="spatial-heading">${heading('04 / CAREER PROFILE',c.name,c.tagline,'explore')}${CareerArt(c.id)}</div><nav class="detail-tabs" aria-label="职业档案分页"><button data-detail-part="overview" ${part==='overview'?'aria-current="page"':''}>工作与场景</button><button data-detail-part="paths" ${part==='paths'?'aria-current="page"':''}>相邻职业与下一步</button>${requirements?.length ? `<button data-detail-part="recruitment" ${part==='recruitment'?'aria-current="page"':''}>招聘要求</button>` : ''}</nav>${part==='paths'?paths:part==='recruitment'&&requirements?.length?renderRecruitmentReference(requirements):overview}<div class="page-actions"><button class="btn btn-primary" data-to="market">查看 ${cache.profile.length} 项能力要求 ${Icon('arrow')}</button>${requirements?.length ? `<button class="text-button" data-to="background">填写个人背景 ${Icon('arrow')}</button>` : `<button class="text-button" data-resume-assess>看看我的能力 ${Icon('arrow')}</button>`}</div></section>`;
+}
+
+function renderBackground() {
+  return `<section class="stage-enter background-page">${heading(cache.career.name, "填写个人背景", "目标范围：该职业的通用招聘参考。", "detail")}${BackgroundForm()}</section>`;
 }
 
 function demoNote() { return `<div class="notice">${Icon("info")}<p>当前为演示数据，用于理解职业能力要求，不代表实时招聘统计。</p></div>`; }
@@ -135,7 +141,7 @@ function view() {
   const s = getState();
   if (s.tab === "direction") return renderDirection();
   if (s.tab === "mine") return renderMine();
-  return ({home:renderHome,choose:renderChoose,majors:renderChoose,focus:renderFocus,explore:renderExplore,detail:renderDetail,market:renderMarket,assess:renderAssess,portrait:renderPortrait,structure:renderStructure,distance:renderDistance,advice:renderAdvice,gap:renderGap}[s.stage] || renderHome)();
+  return ({home:renderHome,choose:renderChoose,majors:renderChoose,focus:renderFocus,explore:renderExplore,detail:renderDetail,background:renderBackground,market:renderMarket,assess:renderAssess,portrait:renderPortrait,structure:renderStructure,distance:renderDistance,advice:renderAdvice,gap:renderGap}[s.stage] || renderHome)();
 }
 function paint(focus) {
   const s = getState(), title = s.tab === "explore" ? stageTitles[s.stage] : s.tab === "direction" ? "我的方向" : "我的";
@@ -168,6 +174,8 @@ function paint(focus) {
       if (el.getAttribute(focus.attribute) === focus.value) { el.focus({preventScroll:true}); break; }
     }
   }
+  const backgroundForm = app.querySelector?.("[data-background-form]");
+  if (backgroundForm && s.tab === "explore" && s.stage === "background") mountBackgroundForm(backgroundForm, s.careerId);
   initGalaxy(app);
   if(immersive)initImmersive(app,s,callbacks);
   router.sync();
