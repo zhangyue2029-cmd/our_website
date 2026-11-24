@@ -1,3 +1,4 @@
+import { cookieDigest, currentMember, fromOwnSite } from "./accounts.mjs";
 import { createHash } from "node:crypto";
 import { hasBackgroundEvidence, normalizeBackground } from "../src/lib/background-draft.js";
 import { recruitmentReference } from "../src/data/recruitment-reference.js";
@@ -37,7 +38,7 @@ async function readBody(req) {
 }
 
 function prepare(body) {
-  const { careerId, requestId, draft } = body ?? {};
+  const { careerId, requestId, draft, saveReport } = body ?? {};
   if (typeof careerId !== "string" || !Object.hasOwn(recruitmentReference.careers, careerId)) {
     throw new HttpError(400, "请选择新闻传播职业。");
   }
@@ -62,6 +63,7 @@ function prepare(body) {
   }
   return {
     requestId,
+    saveReport: saveReport === true,
     input: {
       careerId,
       referenceVersion: recruitmentReference.version,
@@ -143,7 +145,7 @@ function respond(res, status, value) {
   res.end(JSON.stringify(value));
 }
 
-export function createAnalysisHandler(provider) {
+export function createAnalysisHandler(provider, { db = null } = {}) {
   const jobs = new Map();
   let active = 0;
   let starts = [];
@@ -152,7 +154,7 @@ export function createAnalysisHandler(provider) {
       res.setHeader("Allow", "POST");
       return respond(res, 405, { error: "请使用填写表单提交分析。" });
     }
-    if (req.headers["sec-fetch-site"] === "cross-site") {
+    if (!fromOwnSite(req)) {
       return respond(res, 403, { error: "请在本站提交分析。" });
     }
     if (req.headers["content-type"]?.split(";")[0].trim() !== "application/json") {
@@ -160,12 +162,15 @@ export function createAnalysisHandler(provider) {
     }
 
     try {
-      const { requestId, input } = prepare(await readBody(req));
+      const { requestId, input, saveReport } = prepare(await readBody(req));
       if (!provider) throw new HttpError(503, "草稿可继续使用，职业分析服务暂不可用。");
+
+      const member = saveReport && db ? await currentMember(db, cookieDigest(req)) : null;
+      if (saveReport && !member) throw new HttpError(401, "请登录后保存报告，或取消勾选后继续分析。");
 
       const now = Date.now();
       for (const [id, job] of jobs) if (job.expiresAt <= now) jobs.delete(id);
-      const signature = createHash("sha256").update(JSON.stringify(input)).digest("hex");
+      const signature = createHash("sha256").update(JSON.stringify([member?.id ?? null, input])).digest("hex");
       let job = jobs.get(requestId);
       if (job && job.signature !== signature) {
         throw new HttpError(409, "这份填写内容已变更，请重新提交。");
@@ -179,9 +184,22 @@ export function createAnalysisHandler(provider) {
         active += 1;
         starts.push(now);
         job = { signature, expiresAt: Infinity };
-        job.promise = Promise.resolve().then(() => provider(input))
-          .then(value => validateReport(value, input))
-          .then(report => {
+        job.promise = Promise.resolve().then(async () => {
+          const generation = member
+            ? (await db.query("SELECT nextval('accounts.report_generation') AS value")).rows[0].value
+            : null;
+          const report = validateReport(await provider(input), input);
+          if (member) {
+            await db.query(
+              `INSERT INTO accounts.report(member_id, career_id, generation, report) VALUES ($1, $2, $3, $4)
+               ON CONFLICT (member_id, career_id) DO UPDATE SET generation = EXCLUDED.generation,
+                 report = EXCLUDED.report, saved_at = now()
+               WHERE accounts.report.generation < EXCLUDED.generation`,
+              [member.id, input.careerId, generation, report],
+            );
+          }
+          return report;
+        }).then(report => {
             job.expiresAt = Date.now() + resultTtl;
             setTimeout(() => {
               if (jobs.get(requestId) === job) jobs.delete(requestId);

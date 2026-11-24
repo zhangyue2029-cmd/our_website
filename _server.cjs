@@ -4,9 +4,6 @@ const path = require("path");
 const root = __dirname;
 const port = Number(process.env.QX_PORT || 8124);
 const mime = { ".webp":"image/webp", ".svg":"image/svg+xml", ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8" };
-const analysis = import("./server/background-analysis.mjs").then(({ createAnalysisHandler, createOpenAIProvider }) =>
-  createAnalysisHandler(createOpenAIProvider({ apiKey: process.env.OPENAI_API_KEY, model: process.env.QX_AI_MODEL }))
-);
 const database = process.env.QX_DATABASE_URL
   ? import("pg").then(({ default: pg }) => {
     const pool = new pg.Pool({ connectionString: process.env.QX_DATABASE_URL, max: 5, connectionTimeoutMillis: 3000 });
@@ -14,6 +11,9 @@ const database = process.env.QX_DATABASE_URL
     return pool;
   })
   : Promise.resolve(null);
+const analysis = Promise.all([import("./server/background-analysis.mjs"), database])
+  .then(([{ createAnalysisHandler, createOpenAIProvider }, db]) =>
+    createAnalysisHandler(createOpenAIProvider({ apiKey: process.env.OPENAI_API_KEY, model: process.env.QX_AI_MODEL }), { db }));
 const accounts = Promise.all([import("./server/accounts.mjs"), database])
   .then(([{ createAccountHandler }, db]) => createAccountHandler(db));
 const community = Promise.all([import("./server/community.mjs"), database])

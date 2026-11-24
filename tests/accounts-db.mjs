@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
 import { createServer } from 'node:http';
 import { test } from 'node:test';
 import pg from 'pg';
 import { createAccountHandler } from '../server/accounts.mjs';
+import { createAnalysisHandler } from '../server/background-analysis.mjs';
 import { createCommunityHandler } from '../server/community.mjs';
 import { parseRoute, routeFor } from '../src/lib/router.js';
 
@@ -11,15 +13,33 @@ test('real database isolates sessions and drafts by owner', async () => {
   const db = new pg.Pool({ connectionString: process.env.QX_DATABASE_URL });
   const handle = createAccountHandler(db);
   const community = createCommunityHandler(db);
-  const server = createServer((req, res) => req.url.startsWith('/api/community/')
-    ? community(req, res) : handle(req, res, req.url)).listen(0, '127.0.0.1');
+  let resolveSlow;
+  let slowStarted;
+  const waiting = new Promise(resolve => { slowStarted = resolve; });
+  let providerCalls = 0;
+  const analysis = createAnalysisHandler(async input => {
+    providerCalls++;
+    const summary = input.entries[0].details;
+    if (summary === '失败分析') throw Error('unavailable');
+    if (summary === '较早分析') {
+      await new Promise(resolve => { resolveSlow = resolve; slowStarted(); });
+    }
+    const requirementId = input.requirements[0].id;
+    return { summary, transfer: [], gaps: [{ requirementId, text: '复核素材。' }],
+      actions: [{ requirementId, text: '制作核查清单。' }] };
+  }, { db });
+  const server = createServer((req, res) => {
+    if (req.url === '/api/background-analysis') return analysis(req, res);
+    if (req.url.startsWith('/api/community/')) return community(req, res);
+    return handle(req, res, req.url);
+  }).listen(0, '127.0.0.1');
   await once(server, 'listening');
   try {
     async function request(route, body, cookie, extraHeaders = {}) {
       const headers = { ...extraHeaders };
       if (body !== undefined) headers['Content-Type'] = 'application/json';
       if (cookie) headers.Cookie = cookie;
-      return fetch('http://127.0.0.1:' + server.address().port + '/api/' + (route.startsWith('community/') ? route : 'account/' + route),
+      return fetch('http://127.0.0.1:' + server.address().port + '/api/' + (route.startsWith('community/') || route === 'background-analysis' ? route : 'account/' + route),
         { method: body === undefined ? 'GET' : 'POST', headers, body: JSON.stringify(body) });
     }
     assert.equal((await request('background')).status, 401);
@@ -67,6 +87,25 @@ test('real database isolates sessions and drafts by owner', async () => {
     assert.equal(visible.posts[0].author_name, member.displayName);
     await db.query("UPDATE community.post SET status = 'hidden' WHERE id = $1", [id]);
     assert.deepEqual((await (await request('community/posts?career=journalist')).json()).posts, []);
+
+    const analyze = (narrative, saveReport, cookie) => request('background-analysis', {
+      requestId: randomUUID(), careerId: 'journalist', draft: { narrative }, saveReport,
+    }, cookie);
+    assert.equal((await analyze('缺少会话', true)).status, 401);
+    assert.equal(providerCalls, 0);
+    assert.equal((await analyze('只看临时报告', false, firstCookie)).status, 200);
+    assert.deepEqual((await (await request('reports', undefined, firstCookie)).json()).reports, []);
+    const slow = analyze('较早分析', true, firstCookie);
+    await waiting;
+    assert.equal((await analyze('较新分析', true, firstCookie)).status, 200);
+    resolveSlow();
+    assert.equal((await slow).status, 200);
+    assert.equal((await analyze('失败分析', true, firstCookie)).status, 502);
+    const { reports } = await (await request('reports', undefined, firstCookie)).json();
+    assert.equal(reports.length, 1);
+    assert.equal(reports[0].report.summary, '较新分析');
+    assert.deepEqual((await (await request('reports', undefined, secondCookie)).json()).reports, []);
+    assert.equal((await request('reports')).status, 401);
 
     const login = await request('login', { username: member.username, password }, firstCookie);
     assert.equal(login.status, 200);

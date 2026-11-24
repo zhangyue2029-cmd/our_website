@@ -1,3 +1,4 @@
+import { renderReport } from "./AnalysisReport.js";
 import { writeBackgroundDraft } from "../lib/background-draft.js";
 
 export async function accountRequest(path, body) {
@@ -44,6 +45,8 @@ export function AccountPanel() {
       <h3>背景档案</h3>
       <p>在背景填写页选择「保存到账号」后，档案会出现在这里。</p>
       <ul data-account-drafts></ul>
+      <h3>职业报告</h3>
+      <div data-account-reports></div>
     </div>
   </section>`;
 }
@@ -53,11 +56,13 @@ export async function mountAccountPanel(root, careers) {
   const guest = root.querySelector("[data-account-guest]");
   const member = root.querySelector("[data-account-member]");
   const list = root.querySelector("[data-account-drafts]");
+  const reports = root.querySelector("[data-account-reports]");
 
   function show(profile) {
     guest.hidden = Boolean(profile);
     member.hidden = !profile;
     list.replaceChildren();
+    reports.replaceChildren();
     root.querySelector("[data-account-name]").textContent = profile
       ? `${profile.displayName} · ${profile.communityRole === "employed" ? "已就业分享者（未认证）" : "在校生（自报）"}`
       : "";
@@ -109,6 +114,25 @@ export async function mountAccountPanel(root, careers) {
     }
   }
 
+  async function loadReports() {
+    const result = await accountRequest("reports");
+    reports.replaceChildren();
+    if (result.reports.length === 0) {
+      reports.textContent = "还没有保存的职业报告。";
+    }
+    for (const { career_id: careerId, report, saved_at: savedAt } of result.reports) {
+      const career = careers.find(item => item.id === careerId);
+      if (!career) continue;
+      const details = document.createElement("details");
+      const label = document.createElement("summary");
+      const content = document.createElement("div");
+      label.textContent = `${career.name} · ${new Date(savedAt).toLocaleDateString("zh-CN")}`;
+      renderReport(content, report);
+      details.append(label, content);
+      reports.append(details);
+    }
+  }
+
   for (const action of ["login", "register"]) {
     root.querySelector(`[data-account-${action}]`).addEventListener("submit", async event => {
       event.preventDefault();
@@ -121,7 +145,7 @@ export async function mountAccountPanel(root, careers) {
         form.reset();
         show(profile);
         status.textContent = "已登录。";
-        await loadDrafts();
+        await Promise.all([loadDrafts(), loadReports()]);
       } catch (error) {
         status.textContent = error.message;
       } finally {
@@ -148,7 +172,7 @@ export async function mountAccountPanel(root, careers) {
     const { profile } = await accountRequest("session");
     show(profile);
     status.textContent = profile ? "" : "登录后可保存私人背景档案。";
-    if (profile) await loadDrafts();
+    if (profile) await Promise.all([loadDrafts(), loadReports()]);
   } catch (error) {
     status.textContent = error.message;
   }

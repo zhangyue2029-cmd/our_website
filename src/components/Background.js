@@ -1,3 +1,4 @@
+import { renderReport } from "./AnalysisReport.js";
 import { accountRequest } from "./Account.js";
 import {
   backgroundCategories, backgroundLimits, hasBackgroundEvidence, normalizeBackground,
@@ -16,6 +17,7 @@ export function BackgroundForm() {
     <label>自由补充（选填）
       <textarea name="narrative" maxlength="${backgroundLimits.narrative}" rows="4"></textarea>
     </label>
+    <label data-background-save-report hidden><span><input type="checkbox" name="saveReport"> 将成功报告保存到我的账号</span></label>
     <div class="page-actions">
       <button class="btn btn-primary" type="submit">完成填写</button>
       <button class="btn btn-ghost" type="button" data-background-account>保存到账号</button>
@@ -36,41 +38,6 @@ export function BackgroundForm() {
   </form>`;
 }
 
-function renderReport(container, result) {
-  const element = (tag, text) => {
-    const node = document.createElement(tag);
-    node.textContent = text;
-    return node;
-  };
-  const content = [
-    element("h2", "职业准备分析"),
-    element("p", result.summary),
-    element("p", `资料版本：${result.referenceVersion}。本报告依据通用招聘参考，样本不足以计算证据覆盖率。`),
-  ];
-  const sections = [
-    ["经历迁移", result.transfer],
-    ["岗位要求与补充学习", result.gaps],
-    ["接下来可以做什么", result.actions],
-  ];
-  for (const [title, rows] of sections) {
-    content.push(element("h3", title));
-    if (!rows.length) {
-      content.push(element("p", "目前没有充分的经历可与这些要求对应。"));
-      continue;
-    }
-    const list = document.createElement("ul");
-    for (const row of rows) {
-      const context = row.entry ? `${row.entry} · ${row.requirement}` : row.requirement;
-      const item = element("li", "");
-      item.append(element("strong", context), element("p", row.text));
-      list.append(item);
-    }
-    content.push(list);
-  }
-  container.replaceChildren(...content);
-  container.hidden = false;
-}
-
 export function mountBackgroundForm(form, careerId) {
   const { draft, available } = readBackgroundDraft(careerId);
   const fields = Array.from(form.querySelectorAll("[data-background-category]"));
@@ -80,6 +47,10 @@ export function mountBackgroundForm(form, careerId) {
   const feedback = form.querySelector("[data-background-feedback]");
   const report = form.querySelector("[data-background-report]");
   const submit = form.querySelector("[type=submit]");
+  const saveReport = form.elements.saveReport;
+  accountRequest("session").then(({ profile }) => {
+    form.querySelector("[data-background-save-report]").hidden = !profile;
+  }).catch(() => {});
   let lastRequest;
 
   function invalidateReport() {
@@ -176,7 +147,9 @@ export function mountBackgroundForm(form, careerId) {
     }
 
     storageMessage(writeBackgroundDraft(careerId, draft));
-    const signature = JSON.stringify(draft);
+    const saveToAccount = saveReport.checked;
+    const currentSignature = () => JSON.stringify([draftFromForm(), saveReport.checked]);
+    const signature = currentSignature();
     invalidateReport();
     submit.disabled = true;
     feedback.textContent = "正在分析个人背景…";
@@ -187,10 +160,10 @@ export function mountBackgroundForm(form, careerId) {
       const response = await fetch("/api/background-analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ careerId, draft, requestId: lastRequest.id }),
+        body: JSON.stringify({ careerId, draft, saveReport: saveToAccount, requestId: lastRequest.id }),
       });
       const result = await response.json();
-      if (JSON.stringify(draftFromForm()) !== signature) return;
+      if (currentSignature() !== signature) return;
       if (!response.ok) {
         feedback.textContent = result.error || "暂时无法分析，请重试。";
         return;
@@ -198,7 +171,7 @@ export function mountBackgroundForm(form, careerId) {
       renderReport(report, result);
       feedback.textContent = "分析完成。";
     } catch {
-      if (JSON.stringify(draftFromForm()) === signature) feedback.textContent = "暂时无法分析，请重试。";
+      if (currentSignature() === signature) feedback.textContent = "暂时无法分析，请重试。";
     } finally {
       submit.disabled = false;
     }

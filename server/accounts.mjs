@@ -182,6 +182,15 @@ export function createAccountHandler(db) {
         );
         return reply(res, 200, { saved: true });
       }
+      if (req.method === "GET" && route === "/api/account/reports") {
+        const member = await currentMember(db, digest);
+        if (!member) return reply(res, 401, { error: "登录后可查看私人报告。" });
+        const { rows } = await db.query(
+          "SELECT career_id, report, saved_at FROM accounts.report WHERE member_id = $1 ORDER BY saved_at DESC",
+          [member.id],
+        );
+        return reply(res, 200, { reports: rows });
+      }
       return reply(res, 404, { error: "账号操作不存在。" });
     } catch {
       return reply(res, 503, { error: "账号服务暂时不可用，请稍后重试。" });

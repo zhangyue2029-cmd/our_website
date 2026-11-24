@@ -12,6 +12,7 @@ for attempt in {1..60}; do
   sleep 0.25
 done
 docker exec -i "$container" psql -Xq -U postgres -v ON_ERROR_STOP=1 < db/accounts/001_accounts.sql
+docker exec -i "$container" psql -Xq -U postgres -v ON_ERROR_STOP=1 < db/accounts/002_reports.sql
 docker exec -i "$container" psql -Xq -U postgres -v ON_ERROR_STOP=1 < db/community/001_posts.sql
 binding=$(docker port "$container" 5432/tcp)
 export QX_DATABASE_URL="postgresql://postgres:${password}@${binding}/postgres"

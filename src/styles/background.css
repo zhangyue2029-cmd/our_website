@@ -24,3 +24,6 @@
 [data-community] .info-card { margin-bottom: 1rem; }
 [data-community] input[type="checkbox"] { width: auto; }
 .community-post-body { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+#app [data-background-save-report][hidden] { display: none; }
+[data-background-save-report] input { width: auto; }
