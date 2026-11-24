@@ -1,0 +1,292 @@
+{
+  "sourceFiles": {
+    "xlsx": "去向_新闻传播11职业_大厂招聘要求与岗位差异_20261117.xlsx",
+    "docx": "11个职业招聘需求.docx"
+  },
+  "xlsxSheet": "01_岗位招聘样本",
+  "sources": {
+    "xlsx:2": {
+      "careerId": "journalist",
+      "row": 2,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2025-12-08",
+      "url": "https://hr.peopledaily.com.cn/Recruitment/x/job/list.html"
+    },
+    "xlsx:3": {
+      "careerId": "journalist",
+      "row": 3,
+      "origin": "official_link",
+      "recruitmentType": "internship",
+      "listedDate": "2026-05-13",
+      "url": "https://sh.people.com.cn/n2/2026/0513/c134768-41579363.html"
+    },
+    "xlsx:4": {
+      "careerId": "journalist",
+      "row": 4,
+      "origin": "secondary_unverified",
+      "recruitmentType": "campus",
+      "listedDate": "2026-01-05",
+      "url": "https://bj.597.com/institution/277474.html"
+    },
+    "xlsx:5": {
+      "careerId": "editor",
+      "row": 5,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2025-12-08",
+      "url": "https://hr.peopledaily.com.cn/Recruitment/x/job/list.html"
+    },
+    "xlsx:6": {
+      "careerId": "editor",
+      "row": 6,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2025-12-08",
+      "url": "https://hr.peopledaily.com.cn/Recruitment/x/job/list.html"
+    },
+    "xlsx:7": {
+      "careerId": "editor",
+      "row": 7,
+      "origin": "historical_official",
+      "recruitmentType": "historical",
+      "listedDate": "2022-02-07",
+      "url": "https://english.news.cn/20220207/5bf9c3f3da9644929858025e76249ae8/c.html"
+    },
+    "xlsx:8": {
+      "careerId": "new-media",
+      "row": 8,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2026-07-21",
+      "url": "https://talent.baidu.com/jobs/detail/GRADUATE/bec91efe-5415-463d-86d8-a1549798262e"
+    },
+    "xlsx:9": {
+      "careerId": "new-media",
+      "row": 9,
+      "origin": "official_link",
+      "recruitmentType": "internship",
+      "listedDate": "2026-11-12",
+      "url": "https://talent.baidu.com/jobs/detail/INTERN/b4b6b5bb-a255-4951-8174-8bbc762e6dab"
+    },
+    "xlsx:10": {
+      "careerId": "new-media",
+      "row": 10,
+      "origin": "historical_official",
+      "recruitmentType": "historical",
+      "listedDate": null,
+      "url": "https://www.news.cn/xhs/hr/index.htm"
+    },
+    "xlsx:11": {
+      "careerId": "content-ops",
+      "row": 11,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2026-07-21",
+      "url": "https://talent.baidu.com/jobs/detail/GRADUATE/adbd918c-f990-4d58-9e87-dc0e3bdb2e01"
+    },
+    "xlsx:12": {
+      "careerId": "content-ops",
+      "row": 12,
+      "origin": "official_link",
+      "recruitmentType": "experienced",
+      "listedDate": "2026-08-26",
+      "url": "https://talent.baidu.com/jobs/detail/SOCIAL/372d1852-3936-4dc2-ab2b-3457985cfaf3",
+      "adjacentRole": true
+    },
+    "xlsx:13": {
+      "careerId": "user-ops",
+      "row": 13,
+      "origin": "official_link",
+      "recruitmentType": "experienced",
+      "listedDate": "2026-11-09",
+      "url": "https://talent.baidu.com/jobs/detail/SOCIAL/f3d4eb68-fea7-4a58-9287-2d691f8ff70c"
+    },
+    "xlsx:14": {
+      "careerId": "user-ops",
+      "row": 14,
+      "origin": "official_link",
+      "recruitmentType": "experienced",
+      "listedDate": "2026-07-21",
+      "url": "https://talent.baidu.com/jobs/detail/SOCIAL/f537edaa-436a-431d-ac03-41ba60b5cd09"
+    },
+    "xlsx:15": {
+      "careerId": "user-ops",
+      "row": 15,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2026-07-21",
+      "url": "https://talent.baidu.com/jobs/detail/GRADUATE/0aa80bfa-a052-4052-afc1-28c38407c13c",
+      "adjacentRole": true
+    },
+    "xlsx:16": {
+      "careerId": "pm",
+      "row": 16,
+      "origin": "official_link",
+      "recruitmentType": "experienced",
+      "listedDate": "2026-08-26",
+      "url": "https://talent.baidu.com/jobs/detail/SOCIAL/372d1852-3936-4dc2-ab2b-3457985cfaf3"
+    },
+    "xlsx:17": {
+      "careerId": "pm",
+      "row": 17,
+      "origin": "official_link",
+      "recruitmentType": "experienced",
+      "listedDate": "2026-09-28",
+      "url": "https://careers.tencent.com/jobdesc.html?postId=1936828021029838848"
+    },
+    "xlsx:18": {
+      "careerId": "pm",
+      "row": 18,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2026-07-21",
+      "url": "https://talent.baidu.com/jobs/detail/GRADUATE/41d77373-f9d3-41ff-9559-1f092c65a3c7"
+    },
+    "xlsx:19": {
+      "careerId": "brand",
+      "row": 19,
+      "origin": "official_link",
+      "recruitmentType": "experienced",
+      "listedDate": "2026-10-19",
+      "url": "https://talent.baidu.com/jobs/detail/SOCIAL/69697e9d-029c-4350-93fc-3ff14be3710a"
+    },
+    "xlsx:20": {
+      "careerId": "marketing",
+      "row": 20,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2026-07-21",
+      "url": "https://talent.baidu.com/jobs/detail/GRADUATE/961fd57f-db07-43ac-97af-ee6cad6d0bb5"
+    },
+    "xlsx:21": {
+      "careerId": "marketing",
+      "row": 21,
+      "origin": "official_link",
+      "recruitmentType": "experienced",
+      "listedDate": "2026-07-21",
+      "url": "https://talent.baidu.com/jobs/detail/SOCIAL/e5402735-a9ce-4526-9152-6e77c51633ef"
+    },
+    "xlsx:22": {
+      "careerId": "pr",
+      "row": 22,
+      "origin": "official_link",
+      "recruitmentType": "experienced",
+      "listedDate": "2026-10-22",
+      "url": "https://talent.baidu.com/jobs/detail/SOCIAL/d74725bf-241e-453f-8fd7-6a899464e3e4"
+    },
+    "xlsx:23": {
+      "careerId": "pr",
+      "row": 23,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2026-07-21",
+      "url": "https://talent.baidu.com/jobs/detail/GRADUATE/d3ac982a-f979-4625-b1a3-8b3e01f497f3"
+    },
+    "xlsx:24": {
+      "careerId": "video",
+      "row": 24,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2025-12-08",
+      "url": "https://hr.peopledaily.com.cn/Recruitment/x/job/list.html"
+    },
+    "xlsx:25": {
+      "careerId": "video",
+      "row": 25,
+      "origin": "official_link",
+      "recruitmentType": "experienced",
+      "listedDate": "2026-07-21",
+      "url": "https://talent.baidu.com/jobs/detail/SOCIAL/37cf9551-d89a-4583-ae41-c08efa38bebf"
+    },
+    "xlsx:26": {
+      "careerId": "video",
+      "row": 26,
+      "origin": "official_link",
+      "recruitmentType": "internship",
+      "listedDate": "2026-07-21",
+      "url": "https://talent.baidu.com/jobs/detail/INTERN/7a16e682-0929-4bef-8205-a4c28969c9c7"
+    },
+    "xlsx:27": {
+      "careerId": "copywriter",
+      "row": 27,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2026-07-21",
+      "url": "https://talent.baidu.com/jobs/detail/GRADUATE/75dbfdb9-d80f-41a8-a929-345fcd23b246"
+    },
+    "xlsx:28": {
+      "careerId": "copywriter",
+      "row": 28,
+      "origin": "official_link",
+      "recruitmentType": "campus",
+      "listedDate": "2025-12-08",
+      "url": "https://hr.peopledaily.com.cn/Recruitment/x/job/list.html"
+    },
+    "docx:1": {
+      "section": "一、产品经理",
+      "careerIds": [
+        "pm"
+      ],
+      "origin": "unlinked_attachment"
+    },
+    "docx:2": {
+      "section": "二、记者",
+      "careerIds": [
+        "journalist"
+      ],
+      "origin": "unlinked_attachment"
+    },
+    "docx:3": {
+      "section": "三、编辑",
+      "careerIds": [
+        "editor"
+      ],
+      "origin": "unlinked_attachment"
+    },
+    "docx:4": {
+      "section": "三、运营",
+      "careerIds": [
+        "new-media",
+        "content-ops",
+        "user-ops"
+      ],
+      "origin": "unlinked_attachment"
+    },
+    "docx:5": {
+      "section": "四、品牌策划",
+      "careerIds": [
+        "brand"
+      ],
+      "origin": "unlinked_attachment"
+    },
+    "docx:6": {
+      "section": "五、市场营销",
+      "careerIds": [
+        "marketing"
+      ],
+      "origin": "unlinked_attachment"
+    },
+    "docx:7": {
+      "section": "六、公关",
+      "careerIds": [
+        "pr"
+      ],
+      "origin": "unlinked_attachment"
+    },
+    "docx:8": {
+      "section": "七、视频编导",
+      "careerIds": [
+        "video"
+      ],
+      "origin": "unlinked_attachment"
+    },
+    "docx:9": {
+      "section": "八、文案策划",
+      "careerIds": [
+        "copywriter"
+      ],
+      "origin": "unlinked_attachment"
+    }
+  }
+}

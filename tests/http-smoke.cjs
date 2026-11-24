@@ -10,5 +10,8 @@ function request(url) { return new Promise((resolve,reject)=>{const req=http.get
 assert.equal((await request("/.rollback/before-redesign.zip")).status,404);
 assert.equal((await request("/%E0%A4%A")).status,400);
 assert.equal((await request("/missing.js")).status,404);
-console.log(`PASS: ${files.length} resources returned HTTP 200; JS/CSS/SVG/WebP MIME valid; backup is not served; malformed URL handled.`);
+for (const seed of ["journalism-general-v1.json", "journalism-sources-v1.json"]) {
+  assert.equal((await request("/data/recruitment/" + seed)).status, 404, seed);
+}
+console.log(`PASS: ${files.length} resources returned HTTP 200; JS/CSS/SVG/WebP MIME valid; backup and recruitment candidates are not served; malformed URL handled.`);
 })().catch(error=>{console.error(error);process.exitCode=1;});

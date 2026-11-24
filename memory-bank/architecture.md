@@ -101,3 +101,7 @@ Node.js 18+ 运行 npm start 后，由本地静态服务器在 127.0.0.1:8124 �
 ### V2.0 星系增量
 
 新闻传播从学习方向进入星系时，src/main.js 将专业全量职业和当前方向的职业标识传给 CareerMap。星系通过 path-highlight 标记相关节点与连线，src/styles/editorial.css 负责显示强调样式。原有 GalaxyInteraction 仍负责临时悬停、焦点和点选。方向状态沿用现有 hash 和浏览器历史，汉语言文学沿用原方向子集。
+
+### 招聘资料候选层
+
+data/recruitment/journalism-general-v1.json 存放以现有职业标识关联的通用要求种子，状态为待审核。data/recruitment/journalism-sources-v1.json 存放附件来源定位和证据类型。tests/recruitment-seed.mjs 验证职业覆盖、候选状态、来源完整性和行业限定回归。旧站静态服务器只从 index.html 和 src 提供文件，两份种子文件供开发和后续审核使用。

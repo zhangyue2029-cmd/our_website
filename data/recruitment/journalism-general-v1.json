@@ -1,0 +1,459 @@
+{
+  "version": "journalism-general-v1",
+  "status": "pending_review",
+  "requirements": [
+    {
+      "id": "journalist:reporting",
+      "careerId": "journalist",
+      "category": "task",
+      "summary": "策划选题、寻找采访对象，完成采访、写作和发布。",
+      "sourceIds": [
+        "xlsx:2",
+        "xlsx:3",
+        "docx:2"
+      ]
+    },
+    {
+      "id": "journalist:verification",
+      "careerId": "journalist",
+      "category": "task",
+      "summary": "核对采访素材、关键信息和信息出处，遵循采编规范。",
+      "sourceIds": [
+        "docx:2"
+      ]
+    },
+    {
+      "id": "journalist:multimedia",
+      "careerId": "journalist",
+      "category": "skill",
+      "summary": "能用图像、音频或视频辅助报道，并进行基础剪辑。",
+      "sourceIds": [
+        "xlsx:3",
+        "docx:2"
+      ]
+    },
+    {
+      "id": "journalist:coordination",
+      "careerId": "journalist",
+      "category": "skill",
+      "summary": "协调采访对象、编辑和制作人员，跟进报道进度。",
+      "sourceIds": [
+        "xlsx:2",
+        "xlsx:3",
+        "docx:2"
+      ]
+    },
+    {
+      "id": "editor:editing",
+      "careerId": "editor",
+      "category": "task",
+      "summary": "对稿件进行结构整理、文字编辑、校对和内容审核。",
+      "sourceIds": [
+        "xlsx:5",
+        "xlsx:6",
+        "docx:3"
+      ]
+    },
+    {
+      "id": "editor:planning",
+      "careerId": "editor",
+      "category": "task",
+      "summary": "根据受众和发布目标策划选题或专题，安排制作与发布。",
+      "sourceIds": [
+        "xlsx:5",
+        "xlsx:6",
+        "docx:3"
+      ]
+    },
+    {
+      "id": "editor:layout",
+      "careerId": "editor",
+      "category": "skill",
+      "summary": "按媒介特性调整文稿格式与呈现，协调文字、图片或视听素材。",
+      "sourceIds": [
+        "xlsx:5",
+        "xlsx:6",
+        "docx:3"
+      ]
+    },
+    {
+      "id": "editor:editing-sample",
+      "careerId": "editor",
+      "category": "portfolio",
+      "summary": "可准备编辑前后对照稿，并解释关键修改及核查过程。",
+      "sourceIds": [
+        "xlsx:5",
+        "xlsx:6",
+        "docx:3"
+      ]
+    },
+    {
+      "id": "new-media:account-planning",
+      "careerId": "new-media",
+      "category": "task",
+      "summary": "根据账号目标和受众制定选题与发布计划。",
+      "sourceIds": [
+        "xlsx:8",
+        "xlsx:9",
+        "docx:4"
+      ]
+    },
+    {
+      "id": "new-media:production",
+      "careerId": "new-media",
+      "category": "skill",
+      "summary": "制作和编辑传播文案、图文与短视频素材。",
+      "sourceIds": [
+        "xlsx:8",
+        "xlsx:9",
+        "docx:4"
+      ]
+    },
+    {
+      "id": "new-media:distribution",
+      "careerId": "new-media",
+      "category": "skill",
+      "summary": "理解不同内容渠道的分发机制，按受众调整内容形式。",
+      "sourceIds": [
+        "xlsx:8",
+        "xlsx:9"
+      ]
+    },
+    {
+      "id": "new-media:analytics",
+      "careerId": "new-media",
+      "category": "task",
+      "summary": "跟踪传播和互动指标，复盘内容表现并调整运营策略。",
+      "sourceIds": [
+        "xlsx:8"
+      ]
+    },
+    {
+      "id": "content-ops:content-supply",
+      "careerId": "content-ops",
+      "category": "task",
+      "summary": "分析内容供给与消费趋势，识别优质内容及供给缺口。",
+      "sourceIds": [
+        "xlsx:11"
+      ]
+    },
+    {
+      "id": "content-ops:content-classification",
+      "careerId": "content-ops",
+      "category": "skill",
+      "summary": "建立内容分类或分层规则，按用户需求组织内容。",
+      "sourceIds": [
+        "xlsx:11"
+      ]
+    },
+    {
+      "id": "content-ops:distribution-review",
+      "careerId": "content-ops",
+      "category": "task",
+      "summary": "分析分发和消费指标，提出优化内容策略的建议。",
+      "sourceIds": [
+        "xlsx:11"
+      ]
+    },
+    {
+      "id": "content-ops:strategy-sample",
+      "careerId": "content-ops",
+      "category": "portfolio",
+      "summary": "可准备内容运营案例，说明分析、调整和结果。",
+      "sourceIds": [
+        "xlsx:11"
+      ]
+    },
+    {
+      "id": "user-ops:lifecycle",
+      "careerId": "user-ops",
+      "category": "task",
+      "summary": "按用户生命周期制定拉新、促活、留存和转化方案。",
+      "sourceIds": [
+        "xlsx:13",
+        "xlsx:14"
+      ]
+    },
+    {
+      "id": "user-ops:segmentation",
+      "careerId": "user-ops",
+      "category": "skill",
+      "summary": "基于行为和需求做用户分层，为各层制定不同策略。",
+      "sourceIds": [
+        "xlsx:13",
+        "xlsx:14"
+      ]
+    },
+    {
+      "id": "user-ops:experiments",
+      "careerId": "user-ops",
+      "category": "task",
+      "summary": "设计增长实验或运营活动，用指标验证实际效果。",
+      "sourceIds": [
+        "xlsx:13"
+      ]
+    },
+    {
+      "id": "user-ops:funnel-analysis",
+      "careerId": "user-ops",
+      "category": "skill",
+      "summary": "使用表格或查询工具分析用户漏斗，解释关键变化。",
+      "sourceIds": [
+        "xlsx:13"
+      ]
+    },
+    {
+      "id": "pm:discovery",
+      "careerId": "pm",
+      "category": "task",
+      "summary": "调研用户和业务需求，识别问题并确定迭代优先级。",
+      "sourceIds": [
+        "xlsx:16",
+        "xlsx:17",
+        "docx:1"
+      ]
+    },
+    {
+      "id": "pm:requirements",
+      "careerId": "pm",
+      "category": "skill",
+      "summary": "将需求整理成明确的流程、方案、原型或需求文档。",
+      "sourceIds": [
+        "xlsx:16",
+        "docx:1"
+      ]
+    },
+    {
+      "id": "pm:delivery",
+      "careerId": "pm",
+      "category": "task",
+      "summary": "协调设计、研发和测试，跟进交付、上线和复盘。",
+      "sourceIds": [
+        "xlsx:16",
+        "docx:1"
+      ]
+    },
+    {
+      "id": "pm:measurement",
+      "careerId": "pm",
+      "category": "skill",
+      "summary": "用业务和用户指标验证产品假设，定位迭代机会。",
+      "sourceIds": [
+        "xlsx:16",
+        "xlsx:17",
+        "xlsx:18",
+        "docx:1"
+      ]
+    },
+    {
+      "id": "brand:positioning",
+      "careerId": "brand",
+      "category": "task",
+      "summary": "结合受众洞察与业务目标，提炼品牌定位和核心信息。",
+      "sourceIds": [
+        "xlsx:19",
+        "docx:5"
+      ]
+    },
+    {
+      "id": "brand:communication-plan",
+      "careerId": "brand",
+      "category": "task",
+      "summary": "制定整合传播方案，明确创意、渠道和执行节奏。",
+      "sourceIds": [
+        "xlsx:19",
+        "docx:5"
+      ]
+    },
+    {
+      "id": "brand:coordination",
+      "careerId": "brand",
+      "category": "skill",
+      "summary": "组织项目分工、资料审核和跨团队协作。",
+      "sourceIds": [
+        "xlsx:19",
+        "docx:5"
+      ]
+    },
+    {
+      "id": "brand:measurement",
+      "careerId": "brand",
+      "category": "skill",
+      "summary": "以传播指标复盘品牌项目，记录结论和改进建议。",
+      "sourceIds": [
+        "xlsx:19",
+        "docx:5"
+      ]
+    },
+    {
+      "id": "marketing:audience",
+      "careerId": "marketing",
+      "category": "skill",
+      "summary": "调研用户与市场机会，明确目标人群和差异化卖点。",
+      "sourceIds": [
+        "docx:6"
+      ]
+    },
+    {
+      "id": "marketing:campaign",
+      "careerId": "marketing",
+      "category": "task",
+      "summary": "制定整合营销活动方案，协调渠道、内容和执行资源。",
+      "sourceIds": [
+        "xlsx:20",
+        "xlsx:21",
+        "docx:6"
+      ]
+    },
+    {
+      "id": "marketing:budget",
+      "careerId": "marketing",
+      "category": "task",
+      "summary": "管理活动预算和进度，协调内部团队及合作方。",
+      "sourceIds": [
+        "xlsx:21",
+        "docx:6"
+      ]
+    },
+    {
+      "id": "marketing:roi",
+      "careerId": "marketing",
+      "category": "skill",
+      "summary": "跟踪触达与转化指标，分析营销投入产出并复盘。",
+      "sourceIds": [
+        "xlsx:20",
+        "xlsx:21",
+        "docx:6"
+      ]
+    },
+    {
+      "id": "pr:media-relations",
+      "careerId": "pr",
+      "category": "task",
+      "summary": "开展媒体沟通与关系维护，协调采访、活动或对外发布。",
+      "sourceIds": [
+        "xlsx:22",
+        "xlsx:23",
+        "docx:7"
+      ]
+    },
+    {
+      "id": "pr:writing",
+      "careerId": "pr",
+      "category": "skill",
+      "summary": "撰写新闻稿和传播方案，将复杂信息转化为受众可理解的表达。",
+      "sourceIds": [
+        "xlsx:22",
+        "xlsx:23",
+        "docx:7"
+      ]
+    },
+    {
+      "id": "pr:risk-monitoring",
+      "careerId": "pr",
+      "category": "task",
+      "summary": "监测舆情、识别传播风险、及时通报并协作响应。",
+      "sourceIds": [
+        "xlsx:23"
+      ]
+    },
+    {
+      "id": "pr:campaign",
+      "careerId": "pr",
+      "category": "task",
+      "summary": "策划传播议题并协调分工，跟进执行和效果复盘。",
+      "sourceIds": [
+        "xlsx:22",
+        "xlsx:23",
+        "docx:7"
+      ]
+    },
+    {
+      "id": "video:storytelling",
+      "careerId": "video",
+      "category": "task",
+      "summary": "制定选题，编写脚本并将创意转化为分镜。",
+      "sourceIds": [
+        "xlsx:24",
+        "xlsx:25",
+        "xlsx:26",
+        "docx:8"
+      ]
+    },
+    {
+      "id": "video:production",
+      "careerId": "video",
+      "category": "skill",
+      "summary": "协同拍摄和后期制作，把控镜头、剪辑和成片质量。",
+      "sourceIds": [
+        "xlsx:24",
+        "xlsx:25",
+        "xlsx:26",
+        "docx:8"
+      ]
+    },
+    {
+      "id": "video:iteration",
+      "careerId": "video",
+      "category": "skill",
+      "summary": "结合受众反馈和传播指标分析成片表现，迭代内容。",
+      "sourceIds": [
+        "xlsx:25",
+        "docx:8"
+      ]
+    },
+    {
+      "id": "video:portfolio",
+      "careerId": "video",
+      "category": "portfolio",
+      "summary": "可准备完整视频及脚本或分镜，说明个人职责与制作过程。",
+      "sourceIds": [
+        "xlsx:24",
+        "xlsx:26",
+        "docx:8"
+      ]
+    },
+    {
+      "id": "copywriter:writing",
+      "careerId": "copywriter",
+      "category": "skill",
+      "summary": "根据传播目标、受众与渠道撰写活动文案、传播稿或脚本。",
+      "sourceIds": [
+        "xlsx:27",
+        "xlsx:28",
+        "docx:9"
+      ]
+    },
+    {
+      "id": "copywriter:brief",
+      "careerId": "copywriter",
+      "category": "task",
+      "summary": "提炼核心卖点，将复杂产品信息改写为清晰的用户语言。",
+      "sourceIds": [
+        "xlsx:27",
+        "docx:9"
+      ]
+    },
+    {
+      "id": "copywriter:iteration",
+      "careerId": "copywriter",
+      "category": "task",
+      "summary": "跟踪话题、内容反馈和传播指标，调整选题、表达与渠道。",
+      "sourceIds": [
+        "xlsx:27",
+        "docx:9"
+      ]
+    },
+    {
+      "id": "copywriter:portfolio",
+      "careerId": "copywriter",
+      "category": "portfolio",
+      "summary": "可准备多种文案样稿，说明任务目标、改写思路和实际效果。",
+      "sourceIds": [
+        "xlsx:27",
+        "xlsx:28",
+        "docx:9"
+      ]
+    }
+  ]
+}
