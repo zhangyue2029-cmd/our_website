@@ -1,3 +1,5 @@
+import { CommunityPanel, mountCommunityPanel } from "./components/Community.js";
+import { AccountPanel, mountAccountPanel } from "./components/Account.js";
 import { BackgroundForm, mountBackgroundForm } from "./components/Background.js";
 import { recruitmentReference } from "./data/recruitment-reference.js";
 import { ImmersivePages } from "./immersive/view.js";
@@ -135,16 +137,17 @@ function renderDirection() {
 }
 function renderMine() {
   const s = getState(), major = s.majorId === "all" ? "跨专业探索" : cache.majors.find(m=>m.id === s.majorId)?.name ?? "尚未选择";
-  return `<section class="stage-enter">${heading("MY EXPLORATION","我的探索记录","保留你的起点、方向，以及每一次对自己的新认识。") }<div class="mine-layout"><dl class="card mine-list"><div><dt>${Icon("book")} 专业起点</dt><dd>${major}</dd></div><div><dt>${Icon("compass")} 目标职业</dt><dd>${cache.career?.name ?? "尚未选择"}</dd></div><div><dt>${Icon("chart")} 能力互动</dt><dd>${cache.career ? `${answeredCount()} / ${cache.questions.length} 题${completed() ? " · 已完成" : ""}` : "尚未开始"}</dd></div></dl><aside class="card local-note">${SpatialArt("compass","record-art")}<h2>属于这一次探索</h2><p>当前版本不设登录、社区和等级。你的探索进度保存在当前浏览器中。</p><p>${canSaveProgress() ? "更换浏览器或清除网站数据后，记录不会同步保留。" : "当前浏览器无法保存进度，关闭页面后本次记录可能丢失。"}</p></aside></div><div class="reset-row"><div><h2>想从头再出发？</h2><p>重新开始会清除当前专业、目标职业和回答。</p></div><button class="btn btn-ghost" data-reset>重新开始探索</button></div></section>`;
+  return `<section class="stage-enter">${heading("MY EXPLORATION","我的探索记录","保留你的起点、方向，以及每一次对自己的新认识。") }<div class="mine-layout"><dl class="card mine-list"><div><dt>${Icon("book")} 专业起点</dt><dd>${major}</dd></div><div><dt>${Icon("compass")} 目标职业</dt><dd>${cache.career?.name ?? "尚未选择"}</dd></div><div><dt>${Icon("chart")} 能力互动</dt><dd>${cache.career ? `${answeredCount()} / ${cache.questions.length} 题${completed() ? " · 已完成" : ""}` : "尚未开始"}</dd></div></dl><aside class="card local-note">${SpatialArt("compass","record-art")}<h2>属于这一次探索</h2><p>探索进度保存在当前浏览器。登录后可另行保存个人背景。</p><p>${canSaveProgress() ? "更换浏览器或清除网站数据后，记录不会同步保留。" : "当前浏览器无法保存进度，关闭页面后本次记录可能丢失。"}</p></aside></div>${AccountPanel()}<div class="reset-row"><div><h2>想从头再出发？</h2><p>重新开始会清除当前专业、目标职业和回答。</p></div><button class="btn btn-ghost" data-reset>重新开始探索</button></div></section>`;
 }
 function view() {
   const s = getState();
   if (s.tab === "direction") return renderDirection();
   if (s.tab === "mine") return renderMine();
+  if (s.tab === "community") return CommunityPanel(cache.allCareers);
   return ({home:renderHome,choose:renderChoose,majors:renderChoose,focus:renderFocus,explore:renderExplore,detail:renderDetail,background:renderBackground,market:renderMarket,assess:renderAssess,portrait:renderPortrait,structure:renderStructure,distance:renderDistance,advice:renderAdvice,gap:renderGap}[s.stage] || renderHome)();
 }
 function paint(focus) {
-  const s = getState(), title = s.tab === "explore" ? stageTitles[s.stage] : s.tab === "direction" ? "我的方向" : "我的";
+  const s = getState(), title = s.tab === "explore" ? stageTitles[s.stage] : s.tab === "direction" ? "我的方向" : s.tab === "community" ? "分享圈子" : "我的";
   const screen = `${s.tab}:${s.stage}:${s.careerId}:${s.directionId}:${s.stage === "assess" ? s.questionIndex : s.stage === "detail" ? s.detailPart : ""}`;
   const changed = previousScreen !== screen;
   app.classList?.toggle("same-screen",!changed);
@@ -176,6 +179,10 @@ function paint(focus) {
   }
   const backgroundForm = app.querySelector?.("[data-background-form]");
   if (backgroundForm && s.tab === "explore" && s.stage === "background") mountBackgroundForm(backgroundForm, s.careerId);
+  const accountPanel = app.querySelector?.("[data-account-panel]");
+  if (accountPanel && s.tab === "mine") mountAccountPanel(accountPanel, cache.allCareers);
+  const communityPanel = app.querySelector?.("[data-community]");
+  if (communityPanel && s.tab === "community") mountCommunityPanel(communityPanel, cache.allCareers);
   initGalaxy(app);
   if(immersive)initImmersive(app,s,callbacks);
   router.sync();

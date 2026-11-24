@@ -15,6 +15,8 @@ for (const seed of ["journalism-general-v1.json", "journalism-sources-v1.json"])
 }
 assert.equal((await request("/server/background-analysis.mjs")).status,404);
 assert.equal((await request("/api/background-analysis")).status,405);
+assert.equal((await request("/api/account/session")).status,503);
+assert.equal((await request("/api/community/posts")).status,503);
 const attempt = await fetch("http://127.0.0.1:" + (process.env.QX_PORT || 8124) + "/api/background-analysis", {
   method: "POST",
   headers: { "Content-Type": "application/json" },

@@ -15,3 +15,12 @@
 .background-page .background-row { display: grid; gap: .75rem; margin-bottom: 1rem; }
 .background-page .background-row button { justify-self: start; }
 .background-page [role="status"]:empty { display: none; }
+
+.account-panel { margin-top: 1.5rem; }
+.account-panel form, .account-register { margin: 1rem 0; }
+.account-panel [data-account-drafts] li { margin-bottom: .5rem; }
+
+#app .background-page form[hidden] { display: none; }
+[data-community] .info-card { margin-bottom: 1rem; }
+[data-community] input[type="checkbox"] { width: auto; }
+.community-post-body { white-space: pre-wrap; overflow-wrap: anywhere; }

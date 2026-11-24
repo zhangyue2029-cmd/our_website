@@ -15,7 +15,7 @@ export function Icon(name, className = "") {
   };
   return `<svg class="icon ${className}" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.compass}</svg>`;
 }
-const items = [{ id: "explore", label: "探索", icon: "compass" }, { id: "direction", label: "我的方向", icon: "route" }, { id: "mine", label: "我的", icon: "user" }];
+const items = [{ id: "explore", label: "探索", icon: "compass" }, { id: "direction", label: "我的方向", icon: "route" }, { id: "community", label: "分享圈子", icon: "book" }, { id: "mine", label: "我的", icon: "user" }];
 export function Navigation(tab, className) {
   return `<nav class="${className}" aria-label="${className === "bottom-nav" ? "移动端主导航" : "主导航"}">${items.map(item => `<button type="button" data-tab="${item.id}" ${item.id === tab ? 'aria-current="page"' : ""}>${Icon(item.icon)}<span>${item.label}</span>${Icon("chevron", "nav-chevron")}</button>`).join("")}</nav>`;
 }

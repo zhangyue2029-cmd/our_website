@@ -123,3 +123,9 @@ src/components/Background.js 提供表单和交互，src/lib/background-draft.js
 ### 背景分析服务
 
 `_server.cjs` 将 `POST /api/background-analysis` 交给 `server/background-analysis.mjs`。服务端从批准的静态发布版本选取相应职业要求，将有效经历发送给可选 OpenAI 适配器，校验返回的招聘要求和经历标识。以请求标识及输入签名在进程内合并重复请求，成功结果在内存中保留约五分钟供重试。页面用文本节点展示结果。草稿进入本地存储，分析结果不写入浏览器存储或数据库，刷新会回到填写页。
+
+### 账号与圈子
+
+- `db/accounts/001_accounts.sql` 定义账号、摘要化的会话令牌和按账号及职业隔离的背景存档。`server/accounts.mjs` 提供注册、登录、登出和档案读写。网站初版无账号可复用，本阶段选择 PostgreSQL 加服务端会话，以便在云端验证完整登录和归属控制。
+- `db/community/001_posts.sql` 定义帖子和公共读取视图。公共视图剔除匿名作者昵称，且不包含账号标识。`server/community.mjs` 按登录者的自报角色校验帖型，并提供公开搜索与筛选。
+- `src/components/Account.js` 接入「我的」和档案管理。背景页面只有在用户主动选择保存时才向账号写入内容。`src/components/Community.js` 提供发帖和信息流。

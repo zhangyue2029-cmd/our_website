@@ -7,8 +7,28 @@ const mime = { ".webp":"image/webp", ".svg":"image/svg+xml", ".html": "text/html
 const analysis = import("./server/background-analysis.mjs").then(({ createAnalysisHandler, createOpenAIProvider }) =>
   createAnalysisHandler(createOpenAIProvider({ apiKey: process.env.OPENAI_API_KEY, model: process.env.QX_AI_MODEL }))
 );
+const database = process.env.QX_DATABASE_URL
+  ? import("pg").then(({ default: pg }) => {
+    const pool = new pg.Pool({ connectionString: process.env.QX_DATABASE_URL, max: 5, connectionTimeoutMillis: 3000 });
+    pool.on("error", () => console.error("Application database connection closed unexpectedly"));
+    return pool;
+  })
+  : Promise.resolve(null);
+const accounts = Promise.all([import("./server/accounts.mjs"), database])
+  .then(([{ createAccountHandler }, db]) => createAccountHandler(db));
+const community = Promise.all([import("./server/community.mjs"), database])
+  .then(([{ createCommunityHandler }, db]) => createCommunityHandler(db));
 const server = http.createServer(async (req, res) => {
-  if (req.url.split("?")[0] === "/api/background-analysis") {
+  const route = req.url.split("?")[0];
+  if (route.startsWith("/api/account/")) {
+    const handleAccounts = await accounts;
+    return handleAccounts(req, res, route);
+  }
+  if (route === "/api/community/posts") {
+    const handleCommunity = await community;
+    return handleCommunity(req, res);
+  }
+  if (route === "/api/background-analysis") {
     const handleAnalysis = await analysis;
     return handleAnalysis(req, res);
   }

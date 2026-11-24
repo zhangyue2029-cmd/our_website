@@ -20,7 +20,7 @@ function load() {
       }
     }
     return { ...fresh(), historyGeneration:Number.isInteger(parsed.historyGeneration) && parsed.historyGeneration>=0 ? parsed.historyGeneration : 0, stage: stages.includes(parsed.stage) ? parsed.stage : "home",
-      tab: ["explore", "direction", "mine"].includes(parsed.tab) ? parsed.tab : "explore",
+      tab: ["explore", "direction", "community", "mine"].includes(parsed.tab) ? parsed.tab : "explore",
       categoryId: typeof parsed.categoryId === "string" ? parsed.categoryId : "chinese",
       majorId: typeof parsed.majorId === "string" ? parsed.majorId : null,
       detailPart: normalizeDetailPart(parsed.detailPart),

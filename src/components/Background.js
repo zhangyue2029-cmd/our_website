@@ -1,3 +1,4 @@
+import { accountRequest } from "./Account.js";
 import {
   backgroundCategories, backgroundLimits, hasBackgroundEvidence, normalizeBackground,
   readBackgroundDraft, writeBackgroundDraft,
@@ -17,9 +18,11 @@ export function BackgroundForm() {
     </label>
     <div class="page-actions">
       <button class="btn btn-primary" type="submit">完成填写</button>
+      <button class="btn btn-ghost" type="button" data-background-account>保存到账号</button>
       <button class="btn btn-ghost" type="button" data-background-clear>清除这个职业的草稿</button>
     </div>
     <p role="status" data-background-feedback></p>
+    <button class="text-button" type="button" data-background-login data-tab="mine" hidden>登录后返回继续</button>
     <div class="card info-card" data-background-report hidden></div>
     <template data-background-row>
       <div class="background-row">
@@ -142,6 +145,27 @@ export function mountBackgroundForm(form, careerId) {
     save();
     feedback.textContent = "已清空表单。";
   });
+  const accountButton = form.querySelector("[data-background-account]");
+  const signIn = form.querySelector("[data-background-login]");
+  accountButton.addEventListener("click", async () => {
+    signIn.hidden = true;
+    const draft = draftFromForm();
+    if (!hasBackgroundEvidence(draft)) {
+      feedback.textContent = "请先填写一项有效经历再保存到账号。";
+      return;
+    }
+    accountButton.disabled = true;
+    try {
+      await accountRequest("background", { careerId, draft });
+      feedback.textContent = "已保存到账号的私人背景档案。";
+    } catch (error) {
+      feedback.textContent = error.message;
+      signIn.hidden = error.status !== 401;
+    } finally {
+      accountButton.disabled = false;
+    }
+  });
+
   form.addEventListener("submit", async event => {
     event.preventDefault();
     if (submit.disabled) return;
